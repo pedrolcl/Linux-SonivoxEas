@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, signalHandler);
     synth = new SynthController();
     QObject::connect(synth, &SynthController::finished, &app, &QCoreApplication::quit);
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, synth, &QObject::deleteLater);
     synth->renderer()->initReverb(EAS_PARAM_REVERB_HALL);
     synth->start();
     return app.exec();

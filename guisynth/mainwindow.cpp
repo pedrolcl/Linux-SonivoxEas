@@ -17,13 +17,14 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include <QCloseEvent>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_synth(new SynthController)
+    m_synth(new SynthController(this))
 {
     ui->setupUi(this);
     ui->combo_Reverb->addItem(QStringLiteral("Large Hall"), 0);
@@ -55,15 +56,17 @@ MainWindow::~MainWindow()
 }
 
 void
-MainWindow::showEvent(QShowEvent*)
+MainWindow::showEvent(QShowEvent* ev)
 {
     m_synth->start();
+    ev->accept();
 }
 
 void
-MainWindow::closeEvent(QCloseEvent*)
+MainWindow::closeEvent(QCloseEvent* ev)
 {
     m_synth->stop();
+    ev->accept();
 }
 
 void

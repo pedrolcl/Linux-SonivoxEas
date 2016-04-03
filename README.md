@@ -19,7 +19,8 @@ The project directory contains:
 Licenses
 --------
 
-Copyright (C) 2016 Pedro López-Cabanillas
+Copyright (C) 2016 Pedro López-Cabanillas.
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -37,9 +38,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 This project includes code from the Sonivox EAS synthesizer, Copyright Sonic Network Inc. 2006. 
-Sonivox EAS belongs to the Android Open Source Project. It has been forked from the official repositories: 
+Sonivox EAS belongs to the Android Open Source Project. It has been forked from the official repositories:
+
 https://android.googlesource.com/platform/external/sonivox/
-Under the Apache 2.0 license:
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. 
 You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0

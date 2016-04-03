@@ -33,9 +33,10 @@ SynthController::SynthController(QObject *parent) : QObject(parent)
 SynthController::~SynthController()
 {
     qDebug() << Q_FUNC_INFO;
-    m_renderingThread.quit();
-    m_renderingThread.wait();
-    delete m_renderer;
+    if (m_renderingThread.isRunning()) {
+        m_renderingThread.quit();
+        m_renderingThread.wait();
+    }
 }
 
 void
@@ -50,6 +51,8 @@ SynthController::stop()
 {
     qDebug() << Q_FUNC_INFO;
     m_renderer->stop();
+    m_renderingThread.quit();
+    m_renderingThread.wait();
 }
 
 SynthRenderer*

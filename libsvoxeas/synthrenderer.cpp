@@ -39,24 +39,34 @@ SynthRenderer::SynthRenderer(QObject *parent) : QObject(parent)
 void
 SynthRenderer::initALSA()
 {
-    m_Client = new MidiClient(this);
-    m_Client->open();
-    m_Client->setClientName("Sonivox EAS");
-    connect( m_Client, SIGNAL(eventReceived(SequencerEvent*)),
-                       SLOT(sequencerEvent(SequencerEvent*)),
-                       Qt::DirectConnection );
-    m_Port = new MidiPort(this);
-    m_Port->attach( m_Client );
-    m_Port->setPortName("Synthesizer input");
-    m_Port->setCapability( SND_SEQ_PORT_CAP_WRITE |
-                           SND_SEQ_PORT_CAP_SUBS_WRITE );
-    m_Port->setPortType( SND_SEQ_PORT_TYPE_APPLICATION |
-                         SND_SEQ_PORT_TYPE_MIDI_GENERIC );
-    connect( m_Port, SIGNAL(subscribed(MidiPort*,Subscription*)),
-                     SLOT(subscription(MidiPort*,Subscription*)));
-    m_Port->subscribeFromAnnounce();
-    m_codec = new MidiCodec(256);
-    m_codec->enableRunningStatus(false);
+    const QString errorstr = "Fatal error from the ALSA sequencer. "
+        "This usually happens when the kernel doesn't have ALSA support, "
+        "or the device node (/dev/snd/seq) doesn't exists, "
+        "or the kernel module (snd_seq) is not loaded. "
+        "Please check your ALSA/MIDI configuration.";
+    try {
+        m_Client = new MidiClient(this);
+        m_Client->open();
+        m_Client->setClientName("Sonivox EAS");
+        connect( m_Client, &MidiClient::eventReceived,
+                 this, &SynthRenderer::sequencerEvent);
+        m_Port = new MidiPort(this);
+        m_Port->attach( m_Client );
+        m_Port->setPortName("Synthesizer input");
+        m_Port->setCapability( SND_SEQ_PORT_CAP_WRITE |
+                               SND_SEQ_PORT_CAP_SUBS_WRITE );
+        m_Port->setPortType( SND_SEQ_PORT_TYPE_APPLICATION |
+                             SND_SEQ_PORT_TYPE_MIDI_GENERIC );
+        connect( m_Port, &MidiPort::subscribed,
+                 this, &SynthRenderer::subscription);
+        m_Port->subscribeFromAnnounce();
+        m_codec = new MidiCodec(256);
+        m_codec->enableRunningStatus(false);
+    } catch (const SequencerError& ex) {
+        qCritical() << errorstr + "Returned error was:" + ex.qstrError();
+    } catch (...) {
+        qCritical() << errorstr;
+    }
     qDebug() << Q_FUNC_INFO;
 }
 
@@ -70,19 +80,19 @@ SynthRenderer::initEAS()
 
     const S_EAS_LIB_CONFIG *easConfig = EAS_Config();
     if (easConfig == 0) {
-        qDebug() << "EAS_Config returned null";
+        qCritical() << "EAS_Config returned null";
         return;
     }
 
     eas_res = EAS_Init(&dataHandle);
     if (eas_res != EAS_SUCCESS) {
-      qDebug() << "EAS_Init error: " << eas_res;
+      qCritical() << "EAS_Init error: " << eas_res;
       return;
     }
 
     eas_res = EAS_OpenMIDIStream(dataHandle, &handle, NULL);
     if (eas_res != EAS_SUCCESS) {
-      qDebug() << "EAS_OpenMIDIStream error: " << eas_res;
+      qCritical() << "EAS_OpenMIDIStream error: " << eas_res;
       EAS_Shutdown(dataHandle);
       return;
     }
@@ -125,7 +135,7 @@ SynthRenderer::initPulse()
 
     if (!m_handle)
     {
-      qDebug() << "Failed to create PulseAudio connection";
+      qCritical() << "Failed to create PulseAudio connection";
     }
     qDebug() << Q_FUNC_INFO;
 }
@@ -138,21 +148,21 @@ SynthRenderer::~SynthRenderer()
     delete m_Client;
     delete m_codec;
 
-    qDebug() << Q_FUNC_INFO;
-
     EAS_RESULT eas_res;
     if (m_easData != 0 && m_easHandle != 0) {
       eas_res = EAS_CloseMIDIStream(m_easData, m_easHandle);
       if (eas_res != EAS_SUCCESS) {
-          qDebug() << "EAS_CloseMIDIStream error: " << eas_res;
+          qWarning() << "EAS_CloseMIDIStream error: " << eas_res;
       }
       eas_res = EAS_Shutdown(m_easData);
       if (eas_res != EAS_SUCCESS) {
-          qDebug() << "EAS_Shutdown error: " << eas_res;
+          qWarning() << "EAS_Shutdown error: " << eas_res;
       }
     }
 
     pa_simple_free(m_handle);
+
+    qDebug() << Q_FUNC_INFO;
 }
 
 bool
@@ -185,9 +195,9 @@ SynthRenderer::subscribe(const QString& portName)
         qDebug() << "Trying to subscribe " << portName.toLocal8Bit().data();
         m_Port->subscribeFrom(portName);
     } catch (const SequencerError& err) {
-        qDebug() << "SequencerError exception. Error code: " << err.code()
-             << " (" << err.qstrError() << ")";
-        qDebug() << "Location: " << err.location();
+        qWarning() << "SequencerError exception. Error code: " << err.code()
+                   << " (" << err.qstrError() << ")";
+        qWarning() << "Location: " << err.location();
         throw err;
     }
 }
@@ -195,7 +205,7 @@ SynthRenderer::subscribe(const QString& portName)
 void
 SynthRenderer::run()
 {
-    int err;
+    int pa_err;
     unsigned char data[1024];
     qDebug() << Q_FUNC_INFO << "started";
     try {
@@ -206,27 +216,27 @@ SynthRenderer::run()
             EAS_RESULT eas_res;
             EAS_I32 numGen = 0;
             size_t bytes = 0;
+            QCoreApplication::sendPostedEvents();
             if (m_easData != 0)
             {
                 EAS_PCM *buffer = (EAS_PCM *) data;
                 eas_res = EAS_Render(m_easData, buffer, m_bufferSize, &numGen);
                 if (eas_res != EAS_SUCCESS) {
-                    qDebug() << "EAS_Render error:" << eas_res;
+                    qWarning() << "EAS_Render error:" << eas_res;
                 }
                 bytes += (size_t) numGen * sizeof(EAS_PCM) * m_channels;
                 // hand over to pulseaudio the rendered buffer
-                if (pa_simple_write (m_handle, data, bytes, &err) < 0)
+                if (pa_simple_write (m_handle, data, bytes, &pa_err) < 0)
                 {
-                    qDebug() << "Error writing to PulseAudio connection.";
+                    qWarning() << "Error writing to PulseAudio connection:" << pa_err;
                 }
             }
         }
         m_Client->stopSequencerInput();
     } catch (const SequencerError& err) {
-        qDebug() << "SequencerError exception. Error code: " << err.code()
-             << " (" << err.qstrError() << ")";
-        qDebug() << "Location: " << err.location();
-        throw err;
+        qWarning() << "SequencerError exception. Error code: " << err.code()
+                   << " (" << err.qstrError() << ")";
+        qWarning() << "Location: " << err.location();
     }
     qDebug() << Q_FUNC_INFO << "ended";
     emit finished();
@@ -260,9 +270,10 @@ SynthRenderer::writeMIDIData(SequencerEvent *ev)
     {
         count = m_codec->decode((unsigned char *)&buffer, sizeof(buffer), ev->getHandle());
         if (count > 0) {
+            qDebug() << Q_FUNC_INFO << QByteArray((char *)&buffer, count).toHex();
             eas_res = EAS_WriteMIDIStream(m_easData, m_easHandle, buffer, count);
             if (eas_res != EAS_SUCCESS) {
-                qDebug() << "EAS_WriteMIDIStream error: " << eas_res;
+                qWarning() << "EAS_WriteMIDIStream error: " << eas_res;
             }
         }
     }
@@ -277,12 +288,12 @@ SynthRenderer::initReverb(int reverb_type)
         sw = EAS_FALSE;
         eas_res = EAS_SetParameter(m_easData, EAS_MODULE_REVERB, EAS_PARAM_REVERB_PRESET, (EAS_I32) reverb_type);
         if (eas_res != EAS_SUCCESS) {
-            qDebug() << "EAS_SetParameter error:" << eas_res;
+            qWarning() << "EAS_SetParameter error:" << eas_res;
         }
     }
     eas_res = EAS_SetParameter(m_easData, EAS_MODULE_REVERB, EAS_PARAM_REVERB_BYPASS, sw);
     if (eas_res != EAS_SUCCESS) {
-        qDebug() << "EAS_SetParameter error: " << eas_res;
+        qWarning() << "EAS_SetParameter error: " << eas_res;
     }
 }
 
@@ -295,12 +306,12 @@ SynthRenderer::initChorus(int chorus_type)
         sw = EAS_FALSE;
         eas_res = EAS_SetParameter(m_easData, EAS_MODULE_CHORUS, EAS_PARAM_CHORUS_PRESET, (EAS_I32) chorus_type);
         if (eas_res != EAS_SUCCESS) {
-            qDebug() << "EAS_SetParameter error:" << eas_res;
+            qWarning() << "EAS_SetParameter error:" << eas_res;
         }
     }
     eas_res = EAS_SetParameter(m_easData, EAS_MODULE_CHORUS, EAS_PARAM_CHORUS_BYPASS, sw);
     if (eas_res != EAS_SUCCESS) {
-        qDebug() << "EAS_SetParameter error:" << eas_res;
+        qWarning() << "EAS_SetParameter error:" << eas_res;
     }
 }
 
@@ -309,7 +320,7 @@ SynthRenderer::setReverbWet(int amount)
 {
     EAS_RESULT eas_res = EAS_SetParameter(m_easData, EAS_MODULE_REVERB, EAS_PARAM_REVERB_WET, (EAS_I32) amount);
     if (eas_res != EAS_SUCCESS) {
-        qDebug() << "EAS_SetParameter error:" << eas_res;
+        qWarning() << "EAS_SetParameter error:" << eas_res;
     }
 }
 
@@ -318,6 +329,6 @@ SynthRenderer::setChorusLevel(int amount)
 {
     EAS_RESULT eas_res = EAS_SetParameter(m_easData, EAS_MODULE_CHORUS, EAS_PARAM_CHORUS_LEVEL, (EAS_I32) amount);
     if (eas_res != EAS_SUCCESS) {
-        qDebug() << "EAS_SetParameter error:" << eas_res;
+        qWarning() << "EAS_SetParameter error:" << eas_res;
     }
 }
