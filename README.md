@@ -3,7 +3,7 @@ Sonivox EAS for Linux and Qt
 
 This project is a Linux MIDI Synth library based on the Sonivox EAS Synthesizer published by Google on the Android Open Source Project.
 It is a real time GM synthesizer without needing external soundfonts, using embedded samples instead. It consumes very little resources, so
-it may be indicated in Linux project for small embedded devices.
+it may be indicated in Linux projects for small embedded devices.
 
 The library uses ALSA Sequencer MIDI input and PulseAudio output. Complete compile-time dependencies are:
 * Qt5, http://www.qt.io/
@@ -14,7 +14,7 @@ The project directory contains:
 * cmdlnsynth: Command line sample program using the synthesizer library
 * guisynth: GUI sample program using the synthesizer library
 * libsvoxeas: The Linux synthesizer shared library, using ALSA Sequencer and PulseAudio
-* sonivox: The AOSP source files, with a qmake project file to compile and test under QtrCreator as a static library
+* sonivox: The AOSP source files, with a qmake project file to compile and test under QtCreator as a static library
 
 Licenses
 --------
