@@ -8,6 +8,7 @@ QT += core
 QT -= gui
 TEMPLATE = lib
 TARGET = svoxeas
+CONFIG(release): DEFINES += QT_NO_DEBUG_OUTPUT
 
 DEPENDPATH += ../sonivox
 INCLUDEPATH += ../sonivox/host_src

@@ -29,3 +29,5 @@
 
 # QtCreator
 *.user
+
+build/
