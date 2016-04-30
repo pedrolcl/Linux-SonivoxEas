@@ -25,6 +25,7 @@
 #include <drumstick.h>
 #include <pulse/simple.h>
 #include "eas.h"
+#include "filewrapper.h"
 
 using namespace drumstick;
 
@@ -45,11 +46,20 @@ public:
     void setReverbWet(int amount);
     void setChorusLevel(int amount);
 
+    void playFile(const QString fileName);
+    void startPlayback(const QString fileName);
+    void stopPlayback();
+
 private:
     void initALSA();
     void initEAS();
     void initPulse();
     void writeMIDIData(SequencerEvent *ev);
+
+    void preparePlayback();
+    bool playbackCompleted();
+    void closePlayback();
+    long getPlaybackLocation();
 
 public slots:
     void subscription(MidiPort* port, Subscription* subs);
@@ -58,10 +68,14 @@ public slots:
 
 signals:
     void finished();
+    void playbackStopped();
 
 private:
     bool m_Stopped;
+    bool m_isPlaying;
+
     QReadWriteLock m_mutex;
+    QStringList m_files;
 
     /* Drumstick ALSA*/
     MidiClient* m_Client;
@@ -71,10 +85,12 @@ private:
     /* SONiVOX EAS */
     int m_sampleRate, m_bufferSize, m_channels;
     EAS_DATA_HANDLE m_easData;
-    EAS_HANDLE m_easHandle;
+    EAS_HANDLE m_streamHandle;
+    EAS_HANDLE m_fileHandle;
+    FileWrapper *m_currentFile;
 
     /* pulseaudio */
-    pa_simple *m_handle;
+    pa_simple *m_pulseHandle;
 };
 
 #endif /*SYNTHRENDERER_H_*/

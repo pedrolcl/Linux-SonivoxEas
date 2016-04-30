@@ -17,52 +17,28 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MIDIIOWRAPPER_H
+#define MIDIIOWRAPPER_H
 
-#include <QMainWindow>
-#include "synthcontroller.h"
+#include <QString>
+#include <QFile>
+#include <eas_types.h>
 
-enum PlayerState {
-    InitialState,
-    EmptyState,
-    PlayingState,
-    StoppedState
-};
-
-namespace Ui {
-class MainWindow;
-}
-
-class MainWindow : public QMainWindow
+class FileWrapper
 {
-    Q_OBJECT
-
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-    void updateState(PlayerState newState);
-
-protected:
-    virtual void showEvent(QShowEvent *ev);
-    virtual void closeEvent(QCloseEvent *ev);
-
-private slots:
-    void reverbTypeChanged(int index);
-    void chorusTypeChanged(int index);
-    void reverbChanged(int value);
-    void chorusChanged(int value);
-    void songStopped();
-
-    void openFile();
-    void playSong();
-    void stopSong();
+    FileWrapper(const QString path);
+    FileWrapper(const char *path);
+    ~FileWrapper();
+    EAS_FILE_LOCATOR getLocator();
+    int readAt(void *buffer, int offset, int size);
+    int size();
 
 private:
-    Ui::MainWindow *ui;
-    SynthController *m_synth;
-    QString m_songFile;
-    PlayerState m_state;
+    QFile *m_file;
+    off64_t m_Base;
+    int64_t  m_Length;
+    EAS_FILE m_easFile;
 };
 
-#endif // MAINWINDOW_H
+#endif // MIDIIOWRAPPER_H

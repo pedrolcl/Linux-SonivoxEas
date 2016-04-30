@@ -18,13 +18,15 @@
 */
 
 #include <QCloseEvent>
+#include <QFileDialog>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_synth(new SynthController(this))
+    m_synth(new SynthController(this)),
+    m_state(InitialState)
 {
     ui->setupUi(this);
     ui->combo_Reverb->addItem(QStringLiteral("Large Hall"), 0);
@@ -45,9 +47,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->combo_Chorus, SIGNAL(currentIndexChanged(int)), SLOT(chorusTypeChanged(int)));
     connect(ui->dial_Reverb, &QDial::valueChanged, this, &MainWindow::reverbChanged);
     connect(ui->dial_Chorus, &QDial::valueChanged, this, &MainWindow::chorusChanged);
+    connect(ui->openButton, &QToolButton::clicked, this, &MainWindow::openFile);
+    connect(ui->playButton, &QToolButton::clicked, this, &MainWindow::playSong);
+    connect(ui->stopButton, &QToolButton::clicked, this, &MainWindow::stopSong);
+    connect(m_synth->renderer(), &SynthRenderer::playbackStopped, this, &MainWindow::songStopped);
 
     ui->combo_Reverb->setCurrentIndex(1);
     ui->dial_Reverb->setValue(25800);
+
+    m_songFile = QString();
+    updateState(EmptyState);
 }
 
 MainWindow::~MainWindow()
@@ -99,4 +108,75 @@ void
 MainWindow::chorusChanged(int value)
 {
     m_synth->renderer()->setChorusLevel(value);
+}
+
+void
+MainWindow::openFile()
+{
+    m_songFile = QFileDialog::getOpenFileName(this,
+        tr("Open MIDI file"),  QDir::homePath(),
+        tr("MIDI Files (*.mid *.midi *.kar)"));
+    if (m_songFile.isEmpty()) {
+        ui->lblSong->setText("[empty]");
+        updateState(EmptyState);
+    } else {
+        QFileInfo f(m_songFile);
+        ui->lblSong->setText(f.fileName());
+        updateState(StoppedState);
+    }
+}
+
+void
+MainWindow::playSong()
+{
+    if (m_state == StoppedState) {
+        m_synth->renderer()->startPlayback(m_songFile);
+        updateState(PlayingState);
+    }
+}
+
+void
+MainWindow::stopSong()
+{
+    if (m_state == PlayingState) {
+        m_synth->renderer()->stopPlayback();
+        updateState(StoppedState);
+    }
+}
+
+void
+MainWindow::songStopped()
+{
+    if (m_state != StoppedState) {
+        updateState(StoppedState);
+    }
+}
+
+void
+MainWindow::updateState(PlayerState newState)
+{
+    //qDebug() << Q_FUNC_INFO << newState;
+    if (m_state != newState) {
+        switch (newState) {
+        case EmptyState:
+            ui->playButton->setEnabled(false);
+            ui->stopButton->setEnabled(false);
+            ui->openButton->setEnabled(true);
+            break;
+        case PlayingState:
+            ui->playButton->setEnabled(false);
+            ui->stopButton->setEnabled(true);
+            ui->openButton->setEnabled(false);
+            break;
+        case StoppedState:
+            ui->stopButton->setEnabled(true);
+            ui->playButton->setEnabled(true);
+            ui->playButton->setChecked(false);
+            ui->openButton->setEnabled(true);
+            break;
+        default:
+            break;
+        }
+        m_state = newState;
+    }
 }

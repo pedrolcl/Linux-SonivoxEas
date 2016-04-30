@@ -41,9 +41,16 @@ int main(int argc, char *argv[])
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     synth = new SynthController();
-    QObject::connect(synth, &SynthController::finished, &app, &QCoreApplication::quit);
+    QObject::connect(synth->renderer(), &SynthRenderer::playbackStopped, &app, &QCoreApplication::quit);
     QObject::connect(&app, &QCoreApplication::aboutToQuit, synth, &QObject::deleteLater);
     synth->renderer()->initReverb(EAS_PARAM_REVERB_HALL);
+    QStringList args = app.arguments();
+    for(int i = 1; i < args.length();  ++i) {
+        QFile argFile(args[i]);
+        if (argFile.exists()) {
+            synth->renderer()->playFile(argFile.fileName());
+        }
+    }
     synth->start();
     return app.exec();
 }

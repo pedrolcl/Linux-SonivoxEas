@@ -8,18 +8,24 @@ QT += core
 QT -= gui
 TEMPLATE = lib
 TARGET = svoxeas
-CONFIG(release): DEFINES += QT_NO_DEBUG_OUTPUT
+CONFIG(debug, debug|release) {
+    message(DEBUG)
+} else {
+    DEFINES += QT_NO_DEBUG_OUTPUT
+}
 
 DEPENDPATH += ../sonivox
 INCLUDEPATH += ../sonivox/host_src
 
 HEADERS += \
     synthcontroller.h \
-    synthrenderer.h
+    synthrenderer.h \
+    filewrapper.h
 
 SOURCES += \
     synthcontroller.cpp \
-    synthrenderer.cpp
+    synthrenderer.cpp \
+    filewrapper.cpp
 
 QMAKE_LFLAGS += -L../sonivox
 LIBS += -lsonivox

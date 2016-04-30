@@ -34,8 +34,7 @@ SynthController::~SynthController()
 {
     qDebug() << Q_FUNC_INFO;
     if (m_renderingThread.isRunning()) {
-        m_renderingThread.quit();
-        m_renderingThread.wait();
+        stop();
     }
 }
 

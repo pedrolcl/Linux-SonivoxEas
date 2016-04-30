@@ -9,12 +9,14 @@ link_directories(
 set( HEADERS
     synthcontroller.h
     synthrenderer.h
-)    
+    filewrapper.h
+)
 
 set( SOURCES
     synthcontroller.cpp 
     synthrenderer.cpp
-)    
+    filewrapper.cpp
+)
 
 qt5_wrap_cpp( MOC_SRCS ${HEADERS} )
 

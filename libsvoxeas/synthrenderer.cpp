@@ -28,12 +28,15 @@
 #include <eas_chorus.h>
 #include <pulse/simple.h>
 #include "synthrenderer.h"
+#include "filewrapper.h"
 
-SynthRenderer::SynthRenderer(QObject *parent) : QObject(parent)
+SynthRenderer::SynthRenderer(QObject *parent) : QObject(parent),
+    m_Stopped(true),
+    m_isPlaying(false)
 {
     initALSA();
     initEAS();
-    initPulse();
+    initPulse();  
 }
 
 void
@@ -98,8 +101,8 @@ SynthRenderer::initEAS()
     }
 
     m_easData = dataHandle;
-    m_easHandle = handle;
-    assert(m_easHandle != 0);
+    m_streamHandle = handle;
+    assert(m_streamHandle != 0);
     m_sampleRate = easConfig->sampleRate;
     m_bufferSize = easConfig->mixBufferSize;
     m_channels = easConfig->numChannels;
@@ -127,13 +130,13 @@ SynthRenderer::initPulse()
     bufattr.prebuf = (int32_t)-1; /* Just initialize to same value as tlength */
     bufattr.fragsize = (int32_t)-1; /* Not used */
 
-    m_handle = pa_simple_new (server, "SonivoxEAS", PA_STREAM_PLAYBACK,
-                    device, "Synthesizer", &samplespec,
+    m_pulseHandle = pa_simple_new (server, "SonivoxEAS", PA_STREAM_PLAYBACK,
+                    device, "Synthesizer output", &samplespec,
                     NULL, /* pa_channel_map */
                     &bufattr,
                     &err);
 
-    if (!m_handle)
+    if (!m_pulseHandle)
     {
       qCritical() << "Failed to create PulseAudio connection";
     }
@@ -149,8 +152,8 @@ SynthRenderer::~SynthRenderer()
     delete m_codec;
 
     EAS_RESULT eas_res;
-    if (m_easData != 0 && m_easHandle != 0) {
-      eas_res = EAS_CloseMIDIStream(m_easData, m_easHandle);
+    if (m_easData != 0 && m_streamHandle != 0) {
+      eas_res = EAS_CloseMIDIStream(m_easData, m_streamHandle);
       if (eas_res != EAS_SUCCESS) {
           qWarning() << "EAS_CloseMIDIStream error: " << eas_res;
       }
@@ -160,7 +163,7 @@ SynthRenderer::~SynthRenderer()
       }
     }
 
-    pa_simple_free(m_handle);
+    pa_simple_free(m_pulseHandle);
 
     qDebug() << Q_FUNC_INFO;
 }
@@ -212,11 +215,18 @@ SynthRenderer::run()
         m_Client->setRealTimeInput(false);
         m_Client->startSequencerInput();
         m_Stopped = false;
+        m_isPlaying = false;
+        if (m_files.length() > 0) {
+            preparePlayback();
+        }
         while (!stopped()) {
             EAS_RESULT eas_res;
             EAS_I32 numGen = 0;
             size_t bytes = 0;
             QCoreApplication::sendPostedEvents();
+            if (m_isPlaying) {
+                getPlaybackLocation();
+            }
             if (m_easData != 0)
             {
                 EAS_PCM *buffer = (EAS_PCM *) data;
@@ -226,11 +236,23 @@ SynthRenderer::run()
                 }
                 bytes += (size_t) numGen * sizeof(EAS_PCM) * m_channels;
                 // hand over to pulseaudio the rendered buffer
-                if (pa_simple_write (m_handle, data, bytes, &pa_err) < 0)
+                if (pa_simple_write (m_pulseHandle, data, bytes, &pa_err) < 0)
                 {
                     qWarning() << "Error writing to PulseAudio connection:" << pa_err;
                 }
             }
+            if (m_isPlaying && playbackCompleted()) {
+                closePlayback();
+                if (m_files.length() == 0) {
+                    m_isPlaying = false;
+                    emit playbackStopped();
+                } else {
+                    preparePlayback();
+                }
+            }
+        }
+        if (m_isPlaying) {
+            closePlayback();
         }
         m_Client->stopSequencerInput();
     } catch (const SequencerError& err) {
@@ -266,12 +288,12 @@ SynthRenderer::writeMIDIData(SequencerEvent *ev)
     EAS_I32 count;
     EAS_U8 buffer[256];
 
-    if (m_easData != 0 && m_easHandle != 0)
+    if (m_easData != 0 && m_streamHandle != 0)
     {
         count = m_codec->decode((unsigned char *)&buffer, sizeof(buffer), ev->getHandle());
         if (count > 0) {
             qDebug() << Q_FUNC_INFO << QByteArray((char *)&buffer, count).toHex();
-            eas_res = EAS_WriteMIDIStream(m_easData, m_easHandle, buffer, count);
+            eas_res = EAS_WriteMIDIStream(m_easData, m_streamHandle, buffer, count);
             if (eas_res != EAS_SUCCESS) {
                 qWarning() << "EAS_WriteMIDIStream error: " << eas_res;
             }
@@ -330,5 +352,114 @@ SynthRenderer::setChorusLevel(int amount)
     EAS_RESULT eas_res = EAS_SetParameter(m_easData, EAS_MODULE_CHORUS, EAS_PARAM_CHORUS_LEVEL, (EAS_I32) amount);
     if (eas_res != EAS_SUCCESS) {
         qWarning() << "EAS_SetParameter error:" << eas_res;
+    }
+}
+
+void
+SynthRenderer::playFile(const QString fileName)
+{
+    qDebug() << Q_FUNC_INFO << fileName;
+    m_files.append(fileName);
+}
+
+void
+SynthRenderer::preparePlayback()
+{
+    EAS_HANDLE handle;
+    EAS_RESULT result;
+    EAS_I32 playTime;
+
+    m_currentFile = new FileWrapper(m_files.first());
+    m_files.removeFirst();
+
+    /* call EAS library to open file */
+    if ((result = EAS_OpenFile(m_easData, m_currentFile->getLocator(), &handle)) != EAS_SUCCESS)
+    {
+        qWarning() << "EAS_OpenFile" << result;
+        return;
+    }
+
+    /* prepare to play the file */
+    if ((result = EAS_Prepare(m_easData, handle)) != EAS_SUCCESS)
+    {
+        qWarning() << "EAS_Prepare" << result;
+        return;
+    }
+
+    /* get play length */
+    if ((result = EAS_ParseMetaData(m_easData, handle, &playTime)) != EAS_SUCCESS)
+    {
+        qWarning() << "EAS_ParseMetaData. result=" << result;
+        return;
+    }
+    else
+    {
+        qDebug() << "EAS_ParseMetaData. playTime=" << playTime;
+    }
+
+    qDebug() << Q_FUNC_INFO;
+    m_fileHandle = handle;
+    m_isPlaying = true;
+}
+
+bool
+SynthRenderer::playbackCompleted()
+{
+    EAS_RESULT result;
+    EAS_STATE state = EAS_STATE_EMPTY;
+    if ((result = EAS_State(m_easData, m_fileHandle, &state)) != EAS_SUCCESS)
+    {
+        qWarning() << "EAS_State:" << result;
+    }
+    //qDebug() << Q_FUNC_INFO << state;
+    /* is playback complete */
+    return ((state == EAS_STATE_STOPPED) || (state == EAS_STATE_ERROR));
+}
+
+void
+SynthRenderer::closePlayback()
+{
+    qDebug() << Q_FUNC_INFO;
+    EAS_RESULT result = EAS_SUCCESS;
+    /* close the input file */
+    if ((result = EAS_CloseFile(m_easData, m_fileHandle)) != EAS_SUCCESS)
+    {
+        qWarning() << "EAS_CloseFile" << result;
+    }
+    m_fileHandle = 0;
+    delete m_currentFile;
+    m_currentFile = 0;
+    m_isPlaying = false;
+}
+
+long
+SynthRenderer::getPlaybackLocation()
+{
+    EAS_I32 playTime = 0;
+    EAS_RESULT result = EAS_SUCCESS;
+    /* get the current time */
+    if ((result = EAS_GetLocation(m_easData, m_fileHandle, &playTime)) != EAS_SUCCESS)
+    {
+        qWarning() << "EAS_GetLocation" << result;
+    }
+    //qDebug() << Q_FUNC_INFO << playTime;
+    return playTime;
+}
+
+void
+SynthRenderer::startPlayback(const QString fileName)
+{
+    if (!stopped())
+    {
+        playFile(fileName);
+        preparePlayback();
+    }
+}
+
+void
+SynthRenderer::stopPlayback()
+{
+    if (!stopped()) {
+        closePlayback();
     }
 }
