@@ -59,7 +59,7 @@ private:
     void preparePlayback();
     bool playbackCompleted();
     void closePlayback();
-    long getPlaybackLocation();
+    int getPlaybackLocation();
 
 public slots:
     void subscription(MidiPort* port, Subscription* subs);
@@ -69,6 +69,7 @@ public slots:
 signals:
     void finished();
     void playbackStopped();
+    void playbackTime(int time);
 
 private:
     bool m_Stopped;

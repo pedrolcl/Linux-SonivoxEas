@@ -225,7 +225,8 @@ SynthRenderer::run()
             size_t bytes = 0;
             QCoreApplication::sendPostedEvents();
             if (m_isPlaying) {
-                getPlaybackLocation();
+                int t = getPlaybackLocation();
+                emit playbackTime(t);
             }
             if (m_easData != 0)
             {
@@ -432,7 +433,7 @@ SynthRenderer::closePlayback()
     m_isPlaying = false;
 }
 
-long
+int
 SynthRenderer::getPlaybackLocation()
 {
     EAS_I32 playTime = 0;
