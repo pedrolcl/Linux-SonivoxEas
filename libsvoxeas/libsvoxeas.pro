@@ -32,5 +32,5 @@ LIBS += -lsonivox
 
 CONFIG += link_pkgconfig
 PKGCONFIG += drumstick-alsa \
-   libpulse-simple \
+   ao \
    alsa

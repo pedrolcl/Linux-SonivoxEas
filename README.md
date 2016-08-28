@@ -5,15 +5,15 @@ This project is a Linux MIDI Synth library based on the Sonivox EAS Synthesizer 
 It is a real time GM synthesizer without needing external soundfonts, using embedded samples instead. It consumes very little resources, so
 it may be indicated in Linux projects for small embedded devices.
 
-The library uses ALSA Sequencer MIDI input and PulseAudio output. Complete compile-time dependencies are:
+The library uses ALSA Sequencer MIDI input and libAO Audio output. Complete compile-time dependencies are:
 * Qt5, http://www.qt.io/
 * Drumstick, for ALSA MIDI input. http://sourceforge.net/projects/drumstick/
-* PulseAudio, for audio output. http://www.freedesktop.org/wiki/Software/PulseAudio/
+* LibAO, for audio output. http://xiph.org/ao/
 
 The project directory contains:
 * cmdlnsynth: Command line sample program using the synthesizer library
 * guisynth: GUI sample program using the synthesizer library
-* libsvoxeas: The Linux synthesizer shared library, using ALSA Sequencer and PulseAudio
+* libsvoxeas: The Linux synthesizer shared library, using ALSA Sequencer and LibAO Audio output
 * sonivox: The AOSP source files, with a qmake project file to compile and test under QtCreator as a static library
 
 Licenses

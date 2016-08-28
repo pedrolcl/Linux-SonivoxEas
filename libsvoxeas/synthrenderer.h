@@ -23,7 +23,7 @@
 #include <QObject>
 #include <QReadWriteLock>
 #include <drumstick.h>
-#include <pulse/simple.h>
+#include <ao/ao.h>
 #include "eas.h"
 #include "filewrapper.h"
 
@@ -53,7 +53,7 @@ public:
 private:
     void initALSA();
     void initEAS();
-    void initPulse();
+    void initAudio();
     void writeMIDIData(SequencerEvent *ev);
 
     void preparePlayback();
@@ -90,8 +90,8 @@ private:
     EAS_HANDLE m_fileHandle;
     FileWrapper *m_currentFile;
 
-    /* pulseaudio */
-    pa_simple *m_pulseHandle;
+    /* libao */
+    ao_device *m_aoDevice;
 };
 
 #endif /*SYNTHRENDERER_H_*/

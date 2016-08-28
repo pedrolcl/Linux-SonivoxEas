@@ -6,4 +6,4 @@ target_link_libraries( cmdlnsynth
 )
 
 install( TARGETS cmdlnsynth 
-	 DESTINATION bin )
+         DESTINATION bin )
