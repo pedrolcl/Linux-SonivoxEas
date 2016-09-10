@@ -45,6 +45,7 @@ public:
     void initChorus(int chorus_type);
     void setReverbWet(int amount);
     void setChorusLevel(int amount);
+    void setBufferTime(int milliseconds);
 
     void playFile(const QString fileName);
     void startPlayback(const QString fileName);
@@ -91,6 +92,7 @@ private:
     FileWrapper *m_currentFile;
 
     /* pulseaudio */
+    int m_bufferTime;
     pa_simple *m_pulseHandle;
 };
 

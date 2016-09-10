@@ -16,6 +16,12 @@ The project directory contains:
 * libsvoxeas: The Linux synthesizer shared library, using ALSA Sequencer and PulseAudio
 * sonivox: The AOSP source files, with a qmake project file to compile and test under QtCreator as a static library
 
+Hacking
+-------
+
+Use your favorite IDE or text editor with the source files. My preference is QtCreator: https://www.qt.io/ide/
+To build, test and debug you may also find QtCreator interesting. You may also use CMake (>= 3.0) to build the project instead of qmake.
+
 Licenses
 --------
 

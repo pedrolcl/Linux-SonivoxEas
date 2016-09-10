@@ -32,7 +32,8 @@
 
 SynthRenderer::SynthRenderer(QObject *parent) : QObject(parent),
     m_Stopped(true),
-    m_isPlaying(false)
+    m_isPlaying(false),
+    m_bufferTime(60)
 {
     initALSA();
     initEAS();
@@ -114,7 +115,7 @@ SynthRenderer::initPulse()
 {
     pa_sample_spec samplespec;
     pa_buffer_attr bufattr;
-    int period_bytes;
+    int period_bytes = 0;
     char *server = 0;
     char *device = 0;
     int err;
@@ -123,24 +124,25 @@ SynthRenderer::initPulse()
     samplespec.channels = m_channels;
     samplespec.rate = m_sampleRate;
 
-    period_bytes = m_bufferSize * sizeof (EAS_PCM) * m_channels;
+    //period_bytes = m_bufferSize * sizeof (EAS_PCM) * m_channels;
+    period_bytes = pa_usec_to_bytes(m_bufferTime * 1000, &samplespec);
+    qDebug() << "period_bytes:" << period_bytes;
     bufattr.maxlength = (int32_t)-1;
     bufattr.tlength = period_bytes;
     bufattr.minreq = (int32_t)-1;
-    bufattr.prebuf = (int32_t)-1; /* Just initialize to same value as tlength */
-    bufattr.fragsize = (int32_t)-1; /* Not used */
+    bufattr.prebuf = (int32_t)-1;
+    bufattr.fragsize = (int32_t)-1;
 
     m_pulseHandle = pa_simple_new (server, "SonivoxEAS", PA_STREAM_PLAYBACK,
                     device, "Synthesizer output", &samplespec,
                     NULL, /* pa_channel_map */
-                    &bufattr,
-                    &err);
+                    &bufattr, &err);
 
     if (!m_pulseHandle)
     {
       qCritical() << "Failed to create PulseAudio connection";
     }
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << pa_simple_get_latency(m_pulseHandle, &err);
 }
 
 SynthRenderer::~SynthRenderer()
@@ -209,7 +211,7 @@ void
 SynthRenderer::run()
 {
     int pa_err;
-    unsigned char data[1024];
+    unsigned char data[m_bufferSize * sizeof (EAS_PCM) * m_channels];
     qDebug() << Q_FUNC_INFO << "started";
     try {
         m_Client->setRealTimeInput(false);
@@ -251,6 +253,7 @@ SynthRenderer::run()
                     preparePlayback();
                 }
             }
+            //qDebug() << Q_FUNC_INFO << pa_simple_get_latency(m_pulseHandle, &pa_err);
         }
         if (m_isPlaying) {
             closePlayback();
@@ -293,7 +296,7 @@ SynthRenderer::writeMIDIData(SequencerEvent *ev)
     {
         count = m_codec->decode((unsigned char *)&buffer, sizeof(buffer), ev->getHandle());
         if (count > 0) {
-            qDebug() << Q_FUNC_INFO << QByteArray((char *)&buffer, count).toHex();
+            //qDebug() << Q_FUNC_INFO << QByteArray((char *)&buffer, count).toHex();
             eas_res = EAS_WriteMIDIStream(m_easData, m_streamHandle, buffer, count);
             if (eas_res != EAS_SUCCESS) {
                 qWarning() << "EAS_WriteMIDIStream error: " << eas_res;
@@ -463,4 +466,11 @@ SynthRenderer::stopPlayback()
     if (!stopped()) {
         closePlayback();
     }
+}
+
+void
+SynthRenderer::setBufferTime(int milliseconds)
+{
+    qDebug() << Q_FUNC_INFO << milliseconds;
+    m_bufferTime = milliseconds;
 }

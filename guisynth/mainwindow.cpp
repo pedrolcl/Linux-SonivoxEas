@@ -67,6 +67,8 @@ MainWindow::~MainWindow()
 void
 MainWindow::showEvent(QShowEvent* ev)
 {
+    m_synth->renderer()->setBufferTime(ui->spnTime->value());
+    ui->spnTime->setReadOnly(true);
     m_synth->start();
     ev->accept();
 }
