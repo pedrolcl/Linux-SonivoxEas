@@ -1,5 +1,14 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
+pkg_check_modules(DRUMSTICK REQUIRED drumstick-alsa)
+
+link_directories(
+  ${DRUMSTICK_LIBRARY_DIRS}
+)
+
+include_directories(
+  ${DRUMSTICK_INCLUDE_DIRS}
+)
 
 set( SOURCES 
   main.cpp
@@ -24,6 +33,7 @@ add_executable( guisynth
 target_link_libraries( guisynth
   Qt5::Widgets
   svoxeas
+  ${DRUMSTICK_LIBRARIES}
 )
 
 install( TARGETS guisynth 

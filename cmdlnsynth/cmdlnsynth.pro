@@ -21,3 +21,6 @@ QMAKE_LFLAGS += -L../libsvoxeas
 LIBS += -lsvoxeas
 
 QMAKE_RPATHDIR = $$OUT_PWD/../libsvoxeas
+
+CONFIG += link_pkgconfig
+PKGCONFIG += drumstick-alsa
