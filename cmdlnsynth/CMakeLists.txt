@@ -8,7 +8,9 @@ include_directories(
   ${DRUMSTICK_INCLUDE_DIRS}
 )
 
-add_executable( cmdlnsynth main.cpp )
+qt5_wrap_cpp ( MOC_SRCS programsettings.h )
+
+add_executable( cmdlnsynth main.cpp programsettings.cpp ${MOC_SRCS} )
 
 target_link_libraries( cmdlnsynth
   Qt5::Core

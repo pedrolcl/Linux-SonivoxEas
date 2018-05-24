@@ -9,7 +9,6 @@ link_directories(
 set( HEADERS
     synthcontroller.h
     synthrenderer.h
-    filewrapper.h
 )
 
 set( SOURCES

@@ -17,30 +17,39 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef SYNTHCONTROLLER_H
-#define SYNTHCONTROLLER_H
+#ifndef PROGRAMSETTINGS_H
+#define PROGRAMSETTINGS_H
 
 #include <QObject>
-#include <QThread>
-#include "synthrenderer.h"
+#include <QString>
+#include <QSettings>
 
-class SynthController : public QObject
+class ProgramSettings : public QObject
 {
     Q_OBJECT
-public:
-    explicit SynthController(int bufTime, QObject *parent = 0);
-    virtual ~SynthController();
-    SynthRenderer *renderer() const;
 
-    void start();
-    void stop();
+public:
+    static ProgramSettings* instance();
+
+    int bufferTime() const;
+    void setBufferTime(int bufferTime);
 
 signals:
-    void finished();
+    void ValuesChanged();
+
+public slots:
+    void ResetDefaults();
+    void ReadFromNativeStorage();
+    void ReadFromFile(const QString &filepath);
+    void SaveToNativeStorage();
+    void SaveToFile(const QString &filepath);
 
 private:
-    QThread m_renderingThread;
-    SynthRenderer *m_renderer;
+    explicit ProgramSettings(QObject *parent = nullptr);
+    void internalRead(QSettings& settings);
+    void internalSave(QSettings& settings);
+
+    int m_bufferTime;
 };
 
-#endif // SYNTHCONTROLLER_H
+#endif // PROGRAMSETTINGS_H

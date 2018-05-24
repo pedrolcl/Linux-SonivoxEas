@@ -17,14 +17,38 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include "programsettings.h"
 #include "mainwindow.h"
 #include <QApplication>
+#include <QCommandLineParser>
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+    QApplication app(argc, argv);
+    QApplication::setOrganizationName("LinuxEASSynth");
+    QApplication::setApplicationName("GUISynth");
+    QApplication::setApplicationVersion(TOSTRING(VERSION));
+    QCommandLineParser parser;
+    parser.setApplicationDescription("GUI MIDI Synthesizer and Player");
+    parser.addVersionOption();
+    parser.addHelpOption();
+    QCommandLineOption bufferOption(QStringList() << "b" << "buffer","Audio buffer time in milliseconds", "bufer_time", "60");
+    parser.addOption(bufferOption);
+    parser.addPositionalArgument("file", "MIDI File (*.mid; *.kar)");
+    parser.process(app);
 
-    return a.exec();
+    ProgramSettings::instance()->ReadFromNativeStorage();
+    if (parser.isSet(bufferOption)) {
+        ProgramSettings::instance()->setBufferTime(parser.value(bufferOption).toInt());
+    }
+    MainWindow w;
+
+    QStringList args = parser.positionalArguments();
+    if (!args.isEmpty())
+        w.readFile(args.first());
+    w.show();
+    return app.exec();
 }

@@ -34,7 +34,7 @@ class SynthRenderer : public QObject
     Q_OBJECT
 
 public:
-    explicit SynthRenderer(QObject *parent = 0);
+    explicit SynthRenderer(int bufTime, QObject *parent = 0);
     virtual ~SynthRenderer();
 
     void subscribe(const QString& portName);
@@ -45,7 +45,6 @@ public:
     void initChorus(int chorus_type);
     void setReverbWet(int amount);
     void setChorusLevel(int amount);
-    void setBufferTime(int milliseconds);
 
     void playFile(const QString fileName);
     void startPlayback(const QString fileName);

@@ -42,6 +42,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void updateState(PlayerState newState);
+    void initialize();
+    void readFile(const QString &file);
 
 protected:
     virtual void showEvent(QShowEvent *ev);

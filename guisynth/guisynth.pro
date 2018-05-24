@@ -4,6 +4,8 @@
 #
 #------------------------
 
+include(../global.pri)
+
 QT += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -12,9 +14,11 @@ TARGET = guisynth
 TEMPLATE = app
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+           mainwindow.cpp \
+           programsettings.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+            programsettings.h
 
 FORMS    += mainwindow.ui
 

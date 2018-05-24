@@ -20,14 +20,16 @@
 #include <QCloseEvent>
 #include <QFileDialog>
 #include "mainwindow.h"
+#include "programsettings.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_synth(new SynthController(this)),
     m_state(InitialState)
 {
+    m_synth = new SynthController(ProgramSettings::instance()->bufferTime(), this);
+
     ui->setupUi(this);
     ui->combo_Reverb->addItem(QStringLiteral("Large Hall"), 0);
     ui->combo_Reverb->addItem(QStringLiteral("Hall"), 1);
@@ -57,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_songFile = QString();
     updateState(EmptyState);
+    initialize();
 }
 
 MainWindow::~MainWindow()
@@ -65,11 +68,16 @@ MainWindow::~MainWindow()
 }
 
 void
+MainWindow::initialize()
+{
+    int bufTime = ProgramSettings::instance()->bufferTime();
+    ui->bufTime->setText(QString("%1 ms").arg(bufTime));
+    m_synth->start();
+}
+
+void
 MainWindow::showEvent(QShowEvent* ev)
 {
-    m_synth->renderer()->setBufferTime(ui->spnTime->value());
-    ui->spnTime->setReadOnly(true);
-    m_synth->start();
     ev->accept();
 }
 
@@ -77,6 +85,7 @@ void
 MainWindow::closeEvent(QCloseEvent* ev)
 {
     m_synth->stop();
+    ProgramSettings::instance()->SaveToNativeStorage();
     ev->accept();
 }
 
@@ -113,18 +122,27 @@ MainWindow::chorusChanged(int value)
 }
 
 void
+MainWindow::readFile(const QString &file)
+{
+    if (!file.isEmpty() && file != m_songFile) {
+        m_songFile = file;
+        QFileInfo f(file);
+        ui->lblSong->setText(f.fileName());
+        updateState(StoppedState);
+    }
+}
+
+void
 MainWindow::openFile()
 {
-    m_songFile = QFileDialog::getOpenFileName(this,
+    QString songFile = QFileDialog::getOpenFileName(this,
         tr("Open MIDI file"),  QDir::homePath(),
         tr("MIDI Files (*.mid *.midi *.kar)"));
-    if (m_songFile.isEmpty()) {
+    if (songFile.isEmpty()) {
         ui->lblSong->setText("[empty]");
         updateState(EmptyState);
     } else {
-        QFileInfo f(m_songFile);
-        ui->lblSong->setText(f.fileName());
-        updateState(StoppedState);
+        readFile(songFile);
     }
 }
 

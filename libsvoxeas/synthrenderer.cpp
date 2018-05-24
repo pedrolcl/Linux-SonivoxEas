@@ -30,10 +30,10 @@
 #include "synthrenderer.h"
 #include "filewrapper.h"
 
-SynthRenderer::SynthRenderer(QObject *parent) : QObject(parent),
+SynthRenderer::SynthRenderer(int bufTime, QObject *parent) : QObject(parent),
     m_Stopped(true),
     m_isPlaying(false),
-    m_bufferTime(60)
+    m_bufferTime(bufTime)
 {
     initALSA();
     initEAS();
@@ -124,7 +124,6 @@ SynthRenderer::initPulse()
     samplespec.channels = m_channels;
     samplespec.rate = m_sampleRate;
 
-    //period_bytes = m_bufferSize * sizeof (EAS_PCM) * m_channels;
     period_bytes = pa_usec_to_bytes(m_bufferTime * 1000, &samplespec);
     qDebug() << "period_bytes:" << period_bytes;
     bufattr.maxlength = (int32_t)-1;
@@ -142,7 +141,7 @@ SynthRenderer::initPulse()
     {
       qCritical() << "Failed to create PulseAudio connection";
     }
-    qDebug() << Q_FUNC_INFO << pa_simple_get_latency(m_pulseHandle, &err);
+    qDebug() << Q_FUNC_INFO << "latency:" << pa_simple_get_latency(m_pulseHandle, &err);
 }
 
 SynthRenderer::~SynthRenderer()
@@ -466,11 +465,4 @@ SynthRenderer::stopPlayback()
     if (!stopped()) {
         closePlayback();
     }
-}
-
-void
-SynthRenderer::setBufferTime(int milliseconds)
-{
-    qDebug() << Q_FUNC_INFO << milliseconds;
-    m_bufferTime = milliseconds;
 }

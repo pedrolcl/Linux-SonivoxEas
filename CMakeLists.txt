@@ -9,6 +9,13 @@ else()
   message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
+set(VERSION_MAJOR "1")
+set(VERSION_MINOR "2")
+set(VERSION_PATCH "0")
+set(VERSION_SUFFIX "")
+set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}${VERSION_SUFFIX})
+add_definitions(-DVERSION=${VERSION})
+
 find_package(Qt5Core REQUIRED)
 find_package(PkgConfig REQUIRED)
 

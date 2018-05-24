@@ -21,9 +21,9 @@
 #include "synthcontroller.h"
 #include "synthrenderer.h"
 
-SynthController::SynthController(QObject *parent) : QObject(parent)
+SynthController::SynthController(int bufTime, QObject *parent) : QObject(parent)
 {
-    m_renderer = new SynthRenderer();
+    m_renderer = new SynthRenderer(bufTime);
     m_renderer->moveToThread(&m_renderingThread);
     connect(&m_renderingThread, &QThread::started,  m_renderer, &SynthRenderer::run);
     connect(&m_renderingThread, &QThread::finished, m_renderer, &QObject::deleteLater);
