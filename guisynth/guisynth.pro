@@ -14,11 +14,9 @@ TARGET = guisynth
 TEMPLATE = app
 
 SOURCES += main.cpp\
-           mainwindow.cpp \
-           programsettings.cpp
+           mainwindow.cpp 
 
-HEADERS  += mainwindow.h \
-            programsettings.h
+HEADERS  += mainwindow.h 
 
 FORMS    += mainwindow.ui
 

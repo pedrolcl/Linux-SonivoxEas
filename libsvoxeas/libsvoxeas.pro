@@ -18,11 +18,13 @@ DEPENDPATH += ../sonivox
 INCLUDEPATH += ../sonivox/host_src
 
 HEADERS += \
+    programsettings.h \
     synthcontroller.h \
     synthrenderer.h \
-    filewrapper.h
+    filewrapper.h 
 
 SOURCES += \
+    programsettings.cpp \
     synthcontroller.cpp \
     synthrenderer.cpp \
     filewrapper.cpp

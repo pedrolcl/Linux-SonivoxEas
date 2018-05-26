@@ -7,11 +7,13 @@ link_directories(
 )
 
 set( HEADERS
+    programsettings.h
     synthcontroller.h
     synthrenderer.h
 )
 
 set( SOURCES
+    programsettings.cpp
     synthcontroller.cpp 
     synthrenderer.cpp
     filewrapper.cpp

@@ -39,13 +39,17 @@ int main(int argc, char *argv[])
     parser.addOption(bufferOption);
     parser.addPositionalArgument("file", "MIDI File (*.mid; *.kar)");
     parser.process(app);
-
     ProgramSettings::instance()->ReadFromNativeStorage();
     if (parser.isSet(bufferOption)) {
-        ProgramSettings::instance()->setBufferTime(parser.value(bufferOption).toInt());
+        int n = parser.value(bufferOption).toInt();
+        if (n > 0)
+            ProgramSettings::instance()->setBufferTime(n);
+        else {
+            fputs("Wrong buffer time.\n", stderr);
+            parser.showHelp(1);
+        }
     }
     MainWindow w;
-
     QStringList args = parser.positionalArguments();
     if (!args.isEmpty())
         w.readFile(args.first());

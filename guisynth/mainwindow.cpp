@@ -53,10 +53,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->playButton, &QToolButton::clicked, this, &MainWindow::playSong);
     connect(ui->stopButton, &QToolButton::clicked, this, &MainWindow::stopSong);
     connect(m_synth->renderer(), &SynthRenderer::playbackStopped, this, &MainWindow::songStopped);
-
-    ui->combo_Reverb->setCurrentIndex(1);
-    ui->dial_Reverb->setValue(25800);
-
     m_songFile = QString();
     updateState(EmptyState);
     initialize();
@@ -72,6 +68,12 @@ MainWindow::initialize()
 {
     int bufTime = ProgramSettings::instance()->bufferTime();
     ui->bufTime->setText(QString("%1 ms").arg(bufTime));
+    int reverb = ui->combo_Reverb->findData(ProgramSettings::instance()->reverbType());
+    ui->combo_Reverb->setCurrentIndex(reverb);
+    ui->dial_Reverb->setValue(ProgramSettings::instance()->reverbWet()); //0..32765
+    int chorus = ui->combo_Chorus->findData(ProgramSettings::instance()->chorusType());
+    ui->combo_Chorus->setCurrentIndex(chorus);
+    ui->dial_Chorus->setValue(ProgramSettings::instance()->chorusLevel());
     m_synth->start();
 }
 
@@ -94,8 +96,10 @@ MainWindow::reverbTypeChanged(int index)
 {
     int value = ui->combo_Reverb->itemData(index).toInt();
     m_synth->renderer()->initReverb(value);
+    ProgramSettings::instance()->setReverbType(value);
     if (value < 0) {
         ui->dial_Reverb->setValue(0);
+        ProgramSettings::instance()->setReverbWet(0);
     }
 }
 
@@ -103,6 +107,7 @@ void
 MainWindow::reverbChanged(int value)
 {
     m_synth->renderer()->setReverbWet(value);
+    ProgramSettings::instance()->setReverbWet(value);
 }
 
 void
@@ -110,8 +115,10 @@ MainWindow::chorusTypeChanged(int index)
 {
     int value = ui->combo_Chorus->itemData(index).toInt();
     m_synth->renderer()->initChorus(value);
+    ProgramSettings::instance()->setChorusType(value);
     if (value < 0) {
         ui->dial_Chorus->setValue(0);
+        ProgramSettings::instance()->setChorusLevel(0);
     }
 }
 
@@ -119,14 +126,15 @@ void
 MainWindow::chorusChanged(int value)
 {
     m_synth->renderer()->setChorusLevel(value);
+    ProgramSettings::instance()->setChorusLevel(value);
 }
 
 void
 MainWindow::readFile(const QString &file)
 {
     if (!file.isEmpty() && file != m_songFile) {
-        m_songFile = file;
         QFileInfo f(file);
+        m_songFile = f.absoluteFilePath();
         ui->lblSong->setText(f.fileName());
         updateState(StoppedState);
     }

@@ -45,31 +45,82 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("LinuxEASSynth");
     QCoreApplication::setApplicationName("cmdlnsynth");
     QCoreApplication::setApplicationVersion(TOSTRING(VERSION));
-    QCommandLineParser parser;
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
+    QCommandLineParser parser;
     parser.setApplicationDescription("Command Line MIDI Synthesizer and Player");
     parser.addVersionOption();
     parser.addHelpOption();
-    QCommandLineOption bufferOption(QStringList() << "b" << "buffer","Audio buffer time in milliseconds", "bufer_time", "60");
+    QCommandLineOption bufferOption(QStringList() << "b" << "buffer","Audio buffer time in milliseconds.", "buffer_time", "60");
+    QCommandLineOption reverbOption(QStringList() << "r" << "reverb", "Reverb type (none=-1,presets=0,1,2,3).", "reverb_type", "1");
+    QCommandLineOption wetOption(QStringList() << "w" << "wet", "Reverb wet (0..32765).", "reverb_wet", "25800");
+    QCommandLineOption chorusOption(QStringList() << "c" << "chorus", "Chorus type (none=-1,presets=0,1,2,3).", "chorus_type", "-1");
+    QCommandLineOption levelOption(QStringList() << "l" << "level", "Chorus level (0..32765).", "chorus_level", "0");
     parser.addOption(bufferOption);
-    parser.addPositionalArgument("files", "MIDI Files (*.mid; *.kar)", "[files ...]");
+    parser.addOption(reverbOption);
+    parser.addOption(chorusOption);
+    parser.addOption(wetOption);
+    parser.addOption(levelOption);
+    parser.addPositionalArgument("files", "MIDI Files (.mid;.kar)", "[files ...]");
     parser.process(app);
     ProgramSettings::instance()->ReadFromNativeStorage();
     if (parser.isSet(bufferOption)) {
-        qDebug() << "buffertime:" << parser.value(bufferOption);
-        ProgramSettings::instance()->setBufferTime(parser.value(bufferOption).toInt());
-        ProgramSettings::instance()->SaveToNativeStorage();
+        int n = parser.value(bufferOption).toInt();
+        if (n > 0)
+            ProgramSettings::instance()->setBufferTime(n);
+        else {
+            fputs("Wrong buffer time.\n", stderr);
+            parser.showHelp(1);
+        }
+    }
+    if (parser.isSet(wetOption)) {
+        int n = parser.value(wetOption).toInt();
+        if (n >= 0 && n <= 32765)
+            ProgramSettings::instance()->setReverbWet(n);
+        else {
+            fputs("Wrong reverb wet value.\n", stderr);
+            parser.showHelp(1);
+        }
+    }
+    if (parser.isSet(reverbOption)) {
+        int n = parser.value(reverbOption).toInt();
+        if (n >= -1 && n <= 3)
+            ProgramSettings::instance()->setReverbType(n);
+        else {
+            fputs("Wrong reverb type.\n", stderr);
+            parser.showHelp(1);
+        }
+    }
+    if (parser.isSet(levelOption)) {
+        int n = parser.value(levelOption).toInt();
+        if (n >= 0 && n <= 32765)
+            ProgramSettings::instance()->setChorusLevel(n);
+        else {
+            fputs("Wrong chorus level.\n", stderr);
+            parser.showHelp(1);
+        }
+    }
+    if (parser.isSet(chorusOption)) {
+        int n = parser.value(chorusOption).toInt();
+        if (n >= -1 && n <= 3)
+            ProgramSettings::instance()->setChorusType(n);
+        else {
+            fputs("Wrong chorus type.\n", stderr);
+            parser.showHelp(1);
+        }
     }
     synth = new SynthController(ProgramSettings::instance()->bufferTime());
+    synth->renderer()->setReverbWet(ProgramSettings::instance()->reverbWet());
+    synth->renderer()->initReverb(ProgramSettings::instance()->reverbType());
+    synth->renderer()->setChorusLevel(ProgramSettings::instance()->chorusLevel());
+    synth->renderer()->initChorus(ProgramSettings::instance()->chorusType());
     QObject::connect(&app, &QCoreApplication::aboutToQuit, synth, &QObject::deleteLater);
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, ProgramSettings::instance(), &ProgramSettings::SaveToNativeStorage);
     QObject::connect(synth->renderer(), &SynthRenderer::playbackStopped, &app, &QCoreApplication::quit);
     QObject::connect(synth->renderer(), &SynthRenderer::finished, &app, &QCoreApplication::quit);
-    synth->renderer()->initReverb(EAS_PARAM_REVERB_HALL);
     QStringList args = parser.positionalArguments();
     if (!args.isEmpty()) {
         for(int i = 0; i < args.length();  ++i) {
-            qDebug() << args[i];
             QFile argFile(args[i]);
             if (argFile.exists()) {
                 synth->renderer()->playFile(argFile.fileName());

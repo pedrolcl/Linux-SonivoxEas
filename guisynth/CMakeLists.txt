@@ -13,10 +13,9 @@ include_directories(
 set( SOURCES 
   main.cpp
   mainwindow.cpp
-  programsettings.cpp
 )
 
-set( HEADERS mainwindow.h programsettings.h )
+set( HEADERS mainwindow.h )
 set( FORMS mainwindow.ui )
 set( RESOURCES guisynth.qrc )
 
