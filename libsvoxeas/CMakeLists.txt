@@ -24,8 +24,8 @@ qt5_wrap_cpp( MOC_SRCS ${HEADERS} )
 add_library( svoxeas SHARED ${MOC_SRCS} ${SOURCES} )
 
 set_target_properties( svoxeas PROPERTIES 
-    VERSION 1.0.0 
-    SOVERSION 1
+    VERSION ${VERSION}
+    SOVERSION ${VERSION_MAJOR}
 )
 
 target_link_libraries( svoxeas 

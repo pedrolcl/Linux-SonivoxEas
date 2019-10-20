@@ -31,5 +31,11 @@ LIBS += -lsvoxeas
 
 QMAKE_RPATHDIR = $$OUT_PWD/../libsvoxeas
 
-CONFIG += link_pkgconfig
-PKGCONFIG += drumstick-alsa
+_DRUMSTICKLIBS=$$(DRUMSTICKLIBS)
+isEmpty( _DRUMSTICKLIBS ) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += drumstick-alsa
+} else {
+    INCLUDEPATH += $$(DRUMSTICKINCLUDES)
+    LIBS += -L$$(DRUMSTICKLIBS) -ldrumstick-alsa
+}

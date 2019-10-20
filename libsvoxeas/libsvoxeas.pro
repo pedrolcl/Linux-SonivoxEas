@@ -33,6 +33,13 @@ QMAKE_LFLAGS += -L../sonivox
 LIBS += -lsonivox
 
 CONFIG += link_pkgconfig
-PKGCONFIG += drumstick-alsa \
-   libpulse-simple \
+PKGCONFIG += libpulse-simple \
    alsa
+
+_DRUMSTICKLIBS=$$(DRUMSTICKLIBS)
+isEmpty( _DRUMSTICKLIBS ) {
+    PKGCONFIG += drumstick-alsa
+} else {
+    INCLUDEPATH += $$(DRUMSTICKINCLUDES)
+    LIBS += -L$$(DRUMSTICKLIBS) -ldrumstick-alsa
+}
