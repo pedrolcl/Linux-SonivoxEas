@@ -9,7 +9,7 @@ QT -= gui
 TEMPLATE = lib
 TARGET = svoxeas
 CONFIG(debug, debug|release) {
-    message(DEBUG)
+    message("DEBUG build")
 } else {
     DEFINES += QT_NO_DEBUG_OUTPUT
 }

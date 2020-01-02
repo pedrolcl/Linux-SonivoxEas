@@ -1,25 +1,17 @@
-cmake_minimum_required(VERSION 3.0)
-project(eassynth)
+cmake_minimum_required(VERSION 3.9)
+project( EASSynth
+         VERSION 1.3.0
+         DESCRIPTION "Sonivox EAS for Linux and Qt" )
 
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-if(COMPILER_SUPPORTS_CXX11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-else()
-  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif()
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(VERSION_MAJOR "1")
-set(VERSION_MINOR "3")
-set(VERSION_PATCH "0")
-set(VERSION_SUFFIX "")
-set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}${VERSION_SUFFIX})
-add_definitions(-DVERSION=${VERSION})
-
-find_package(Qt5Core REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Drumstick 2.0 COMPONENTS ALSA REQUIRED)
 find_package(PkgConfig REQUIRED)
+pkg_check_modules(PULSE REQUIRED libpulse-simple)
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DQT_NO_DEBUG_OUTPUT")
+include(GNUInstallDirs)
 
 add_subdirectory(sonivox)
 add_subdirectory(libsvoxeas)

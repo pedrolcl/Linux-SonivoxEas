@@ -1,10 +1,7 @@
-pkg_check_modules(PULSE REQUIRED libpulse-simple)
-pkg_check_modules(DRUMSTICK REQUIRED drumstick-alsa)
-
-link_directories(
-    ${PULSE_LIBRARY_DIRS}
-    ${DRUMSTICK_LIBRARY_DIRS}
-)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 set( HEADERS
     programsettings.h
@@ -19,20 +16,20 @@ set( SOURCES
     filewrapper.cpp
 )
 
-qt5_wrap_cpp( MOC_SRCS ${HEADERS} )
-
-add_library( svoxeas SHARED ${MOC_SRCS} ${SOURCES} )
+add_library( svoxeas SHARED ${HEADERS} ${SOURCES} )
 
 set_target_properties( svoxeas PROPERTIES 
-    VERSION ${VERSION}
-    SOVERSION ${VERSION_MAJOR}
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 target_link_libraries( svoxeas 
-    sonivox 
-    Qt5::Core 
-    ${PULSE_LIBRARIES}
-    ${DRUMSTICK_LIBRARIES}
+    PUBLIC
+        sonivox
+    PRIVATE
+        Qt5::Core
+        Drumstick::ALSA
+        ${PULSE_LIBRARIES}
 )
 
 target_include_directories( svoxeas
@@ -40,10 +37,15 @@ target_include_directories( svoxeas
       ${CMAKE_CURRENT_SOURCE_DIR}
     PRIVATE 
       ${PULSE_INCLUDE_DIRS}
-      ${DRUMSTICK_INCLUDE_DIRS}
 )
 
-install( 
-    TARGETS svoxeas 
-    DESTINATION lib${LIB_SUFFIX} 
+target_compile_definitions( svoxeas PRIVATE
+    VERSION=${PROJECT_VERSION}
+    $<$<CONFIG:RELEASE>:QT_NO_DEBUG_OUTPUT>
 )
+
+install( TARGETS svoxeas
+         DESTINATION ${CMAKE_INSTALL_LIBDIR} )
+
+install ( FILES ${HEADERS}
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} )
