@@ -1,40 +1,30 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-find_package(Qt5Widgets REQUIRED)
-pkg_check_modules(DRUMSTICK REQUIRED drumstick-alsa)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
-link_directories(
-  ${DRUMSTICK_LIBRARY_DIRS}
-)
-
-include_directories(
-  ${DRUMSTICK_INCLUDE_DIRS}
-)
-
-set( SOURCES 
-  main.cpp
-  mainwindow.cpp
-)
-
+set( SOURCES main.cpp mainwindow.cpp )
 set( HEADERS mainwindow.h )
 set( FORMS mainwindow.ui )
 set( RESOURCES guisynth.qrc )
 
-qt5_wrap_cpp ( MOC_SRCS ${HEADERS} )
-qt5_wrap_ui ( UI_SRCS ${FORMS} )
-qt5_add_resources ( RES_SRCS ${RESOURCES} )
-
 add_executable( guisynth
   ${SOURCES}
-  ${MOC_SRCS}
-  ${UI_SRCS} 
-  ${RES_SRCS}
+  ${HEADERS}
+  ${FORMS}
+  ${RESOURCES}
 )
 
 target_link_libraries( guisynth
   Qt5::Widgets
+  Drumstick::ALSA
   svoxeas
-  ${DRUMSTICK_LIBRARIES}
+)
+
+target_compile_definitions( guisynth PRIVATE
+    VERSION=${PROJECT_VERSION}
+    $<$<CONFIG:RELEASE>:QT_NO_DEBUG_OUTPUT>
 )
 
 install( TARGETS guisynth 
-	 DESTINATION bin )
+         DESTINATION ${CMAKE_INSTALL_BINDIR} )

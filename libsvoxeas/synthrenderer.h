@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2018, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2020, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -12,9 +12,8 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SYNTHRENDERER_H_
@@ -22,12 +21,12 @@
 
 #include <QObject>
 #include <QReadWriteLock>
-#include <drumstick.h>
+#include <drumstick/alsaclient.h>
+#include <drumstick/alsaport.h>
+#include <drumstick/alsaevent.h>
 #include <pulse/simple.h>
 #include "eas.h"
 #include "filewrapper.h"
-
-using namespace drumstick;
 
 class SynthRenderer : public QObject
 {
@@ -54,7 +53,7 @@ private:
     void initALSA();
     void initEAS();
     void initPulse();
-    void writeMIDIData(SequencerEvent *ev);
+    void writeMIDIData(drumstick::ALSA::SequencerEvent *ev);
 
     void preparePlayback();
     bool playbackCompleted();
@@ -62,8 +61,8 @@ private:
     int getPlaybackLocation();
 
 public slots:
-    void subscription(MidiPort* port, Subscription* subs);
-    void sequencerEvent( SequencerEvent* ev );
+    void subscription(drumstick::ALSA::MidiPort* port, drumstick::ALSA::Subscription* subs);
+    void sequencerEvent( drumstick::ALSA::SequencerEvent* ev );
     void run();
 
 signals:
@@ -79,9 +78,9 @@ private:
     QStringList m_files;
 
     /* Drumstick ALSA*/
-    MidiClient* m_Client;
-    MidiPort* m_Port;
-    MidiCodec* m_codec;
+    drumstick::ALSA::MidiClient* m_Client;
+    drumstick::ALSA::MidiPort* m_Port;
+    drumstick::ALSA::MidiCodec* m_codec;
 
     /* SONiVOX EAS */
     int m_sampleRate, m_bufferSize, m_channels;

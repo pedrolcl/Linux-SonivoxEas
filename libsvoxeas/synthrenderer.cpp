@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2018, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2020, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -12,9 +12,8 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QObject>
@@ -27,8 +26,11 @@
 #include <eas_reverb.h>
 #include <eas_chorus.h>
 #include <pulse/simple.h>
+#include <drumstick/sequencererror.h>
 #include "synthrenderer.h"
 #include "filewrapper.h"
+
+using namespace drumstick::ALSA;
 
 SynthRenderer::SynthRenderer(int bufTime, QObject *parent) : QObject(parent),
     m_Stopped(true),

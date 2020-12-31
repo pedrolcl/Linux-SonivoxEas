@@ -5,9 +5,11 @@
 #------------------------
 
 TEMPLATE = subdirs
-CONFIG += ordered
 SUBDIRS += sonivox \
            libsvoxeas \
            cmdlnsynth \
            guisynth
 
+libsvoxeas.depends = sonivox
+cmdlnsynth.depends = libsvoxeas
+guisynth.depends = libsvoxeas

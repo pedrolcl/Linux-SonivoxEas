@@ -9,7 +9,7 @@ QT -= gui
 TEMPLATE = lib
 TARGET = svoxeas
 CONFIG(debug, debug|release) {
-    message(DEBUG)
+    message("DEBUG build")
 } else {
     DEFINES += QT_NO_DEBUG_OUTPUT
 }
@@ -33,6 +33,13 @@ QMAKE_LFLAGS += -L../sonivox
 LIBS += -lsonivox
 
 CONFIG += link_pkgconfig
-PKGCONFIG += drumstick-alsa \
-   libpulse-simple \
+PKGCONFIG += libpulse-simple \
    alsa
+
+_DRUMSTICKLIBS=$$(DRUMSTICKLIBS)
+isEmpty( _DRUMSTICKLIBS ) {
+    PKGCONFIG += drumstick-alsa
+} else {
+    INCLUDEPATH += $$(DRUMSTICKINCLUDES)
+    LIBS += -L$$(DRUMSTICKLIBS) -ldrumstick-alsa
+}
