@@ -7,8 +7,10 @@ it may be indicated in Linux projects for small embedded devices.
 
 The library uses ALSA Sequencer MIDI input and PulseAudio output. Complete compile-time dependencies are:
 * Qt5, http://www.qt.io/
-* Drumstick, for ALSA MIDI input. http://sourceforge.net/projects/drumstick/
+* Drumstick 2, for ALSA MIDI input. http://sourceforge.net/projects/drumstick/
 * PulseAudio, for audio output. http://www.freedesktop.org/wiki/Software/PulseAudio/
+
+Just to clarify the Drumstick dependency: this project requires Drumstick::ALSA, but Drumstick does not depend on this project at all. There is a Drumstick::RT backend that includes the Sonivox synth as well, but both projects are independent regarding this synthesizer.
 
 The project directory contains:
 * cmdlnsynth: Command line sample program using the synthesizer library
