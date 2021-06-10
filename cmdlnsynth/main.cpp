@@ -24,8 +24,10 @@
 #include "synthcontroller.h"
 #include "programsettings.h"
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+    #define endl Qt::endl
+#endif
+
 static SynthController* synth = 0;
 
 void signalHandler(int sig)
@@ -43,7 +45,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
     QCoreApplication::setOrganizationName("LinuxEASSynth");
     QCoreApplication::setApplicationName("cmdlnsynth");
-    QCoreApplication::setApplicationVersion(TOSTRING(VERSION));
+    QCoreApplication::setApplicationVersion(QT_STRINGIFY(VERSION));
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     QCommandLineParser parser;

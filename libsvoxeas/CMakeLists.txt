@@ -29,14 +29,12 @@ target_link_libraries( svoxeas
     PRIVATE
         Qt5::Core
         Drumstick::ALSA
-        ${PULSE_LIBRARIES}
+        PkgConfig::PULSE
 )
 
 target_include_directories( svoxeas
-    PUBLIC 
+    PUBLIC
       ${CMAKE_CURRENT_SOURCE_DIR}
-    PRIVATE 
-      ${PULSE_INCLUDE_DIRS}
 )
 
 target_compile_definitions( svoxeas PRIVATE

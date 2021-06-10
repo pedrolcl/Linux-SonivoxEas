@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 find_package(Drumstick 2.0 COMPONENTS ALSA REQUIRED)
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(PULSE REQUIRED libpulse-simple)
+pkg_check_modules(PULSE REQUIRED IMPORTED_TARGET libpulse-simple)
 
 include(GNUInstallDirs)
 
