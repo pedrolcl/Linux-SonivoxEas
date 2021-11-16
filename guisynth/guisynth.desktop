@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=SonivoxEas MIDI Synth
+Exec=guisynth %f
+Icon=sonivoxeas
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;Midi;
+Keywords=Music;Midi;Player;
+MimeType=audio/midi;audio/x-midi;
+Comment=SonivoxEas MIDI Synth

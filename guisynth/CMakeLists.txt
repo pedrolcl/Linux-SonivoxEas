@@ -28,3 +28,11 @@ target_compile_definitions( guisynth PRIVATE
 
 install( TARGETS guisynth 
          DESTINATION ${CMAKE_INSTALL_BINDIR} )
+
+install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon.png
+         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128
+         RENAME sonivoxeas.png )
+
+install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/guisynth.desktop
+         DESTINATION ${CMAKE_INSTALL_DATADIR}/applications 
+         RENAME sonivoxeas.desktop )
