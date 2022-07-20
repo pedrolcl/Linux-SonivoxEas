@@ -5,6 +5,8 @@ This project is a Linux MIDI Synth library based on the Sonivox EAS Synthesizer 
 It is a real time GM synthesizer without needing external soundfonts, using embedded samples instead. It consumes very little resources, so
 it may be indicated in Linux projects for small embedded devices.
 
+A multiplatform alternative fork of this project can be found here: [multiplatform-sonivoxeas](https://github.com/pedrolcl/multiplatform-sonivoxeas).
+
 The library uses ALSA Sequencer MIDI input and PulseAudio output. Complete compile-time dependencies are:
 * Qt5, http://www.qt.io/
 * Drumstick 2, for ALSA MIDI input. http://sourceforge.net/projects/drumstick/
