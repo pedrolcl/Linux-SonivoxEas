@@ -23,18 +23,15 @@ set_target_properties( svoxeas PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-target_link_libraries( svoxeas 
-    PUBLIC
-        sonivox
-    PRIVATE
-        Qt5::Core
-        Drumstick::ALSA
-        PkgConfig::PULSE
+target_link_libraries( svoxeas PRIVATE
+    sonivox::sonivox-static
+    Qt5::Core
+    Drumstick::ALSA
+    PkgConfig::PULSE
 )
 
-target_include_directories( svoxeas
-    PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories( svoxeas PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_compile_definitions( svoxeas PRIVATE

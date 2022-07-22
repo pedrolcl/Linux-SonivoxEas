@@ -18,10 +18,12 @@ The project directory contains:
 * cmdlnsynth: Command line sample program using the synthesizer library
 * guisynth: GUI sample program using the synthesizer library
 * libsvoxeas: The Linux synthesizer shared library, using ALSA Sequencer and PulseAudio
-* sonivox: The AOSP source files, with a qmake project file to compile and test under QtCreator as a static library
+* sonivox: The sonivox synth library, forked from the AOSP source files, as a git submodule
 
 Hacking
 -------
+
+Remember to use `git clone --recurse-submodules` when cloning the repository to populate the working copy with all the sources, including the submodule's. If you forgot to do that, then you may need to `git submodule update --init --recursive` afterwards.
 
 Use your favorite IDE or text editor with the source files. My preference is QtCreator: https://www.qt.io/ide/
 To build, test and debug you may also find QtCreator interesting. You may also use CMake (>= 3.0) to build the project instead of qmake.

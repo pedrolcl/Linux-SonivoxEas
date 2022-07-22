@@ -20,7 +20,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QCommandLineParser>
-#include <eas_reverb.h>
+#include "eas_reverb.h"
 #include "synthcontroller.h"
 #include "programsettings.h"
 

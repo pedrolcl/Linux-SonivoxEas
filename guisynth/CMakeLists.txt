@@ -15,6 +15,10 @@ add_executable( guisynth
   ${RESOURCES}
 )
 
+get_target_property( SONIVOX_HEADERS sonivox::sonivox INTERFACE_INCLUDE_DIRECTORIES )
+
+target_include_directories( guisynth PRIVATE ${SONIVOX_HEADERS} )
+
 target_link_libraries( guisynth
   Qt5::Widgets
   Drumstick::ALSA

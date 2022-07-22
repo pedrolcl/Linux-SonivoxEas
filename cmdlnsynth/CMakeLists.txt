@@ -1,5 +1,9 @@
 add_executable( cmdlnsynth main.cpp )
 
+get_target_property( SONIVOX_HEADERS sonivox::sonivox INTERFACE_INCLUDE_DIRECTORIES )
+
+target_include_directories( cmdlnsynth PRIVATE ${SONIVOX_HEADERS} )
+
 target_link_libraries( cmdlnsynth
     Qt5::Core
     Drumstick::ALSA

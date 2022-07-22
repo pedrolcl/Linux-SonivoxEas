@@ -23,8 +23,8 @@
 #include <QtDebug>
 #include <QReadLocker>
 #include <QWriteLocker>
-#include <eas_reverb.h>
-#include <eas_chorus.h>
+#include "eas_reverb.h"
+#include "eas_chorus.h"
 #include <pulse/simple.h>
 #include <drumstick/sequencererror.h>
 #include "synthrenderer.h"
