@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(USE_QT "Choose which Qt major version (5 or 6) to prefer. By default uses whatever is found")
 
+include(GNUInstallDirs)
+
 if (USE_QT)
     if (NOT (USE_QT EQUAL 5 OR USE_QT EQUAL 6))
         message(FATAL_ERROR "Wrong Qt major version. Only 5 and 6 are valid options")
@@ -27,9 +29,10 @@ find_package(Drumstick 2.0 COMPONENTS ALSA REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PULSE REQUIRED IMPORTED_TARGET libpulse-simple)
 
-include(GNUInstallDirs)
-
-add_subdirectory(sonivox)
+find_package(sonivox CONFIG)
+if (NOT sonivox_FOUND)
+    add_subdirectory(sonivox)
+endif()
 add_subdirectory(libsvoxeas)
 add_subdirectory(cmdlnsynth)
 add_subdirectory(guisynth)
