@@ -34,7 +34,15 @@ install( TARGETS guisynth
          DESTINATION ${CMAKE_INSTALL_BINDIR} )
 
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon.png
-         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128
+         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps
+         RENAME sonivoxeas.png )
+
+install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon256.png
+         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps
+         RENAME sonivoxeas.png )
+
+install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon512.png
+         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/512x512/apps
          RENAME sonivoxeas.png )
 
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/guisynth.desktop
