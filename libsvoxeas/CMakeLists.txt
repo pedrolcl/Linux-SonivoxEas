@@ -25,7 +25,7 @@ set_target_properties( svoxeas PROPERTIES
 
 target_link_libraries( svoxeas PRIVATE
     sonivox::sonivox
-    Qt5::Core
+    Qt${QT_VERSION_MAJOR}::Core
     Drumstick::ALSA
     PkgConfig::PULSE
 )

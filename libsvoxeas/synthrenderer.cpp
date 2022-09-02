@@ -26,6 +26,7 @@
 #include "eas_reverb.h"
 #include "eas_chorus.h"
 #include <pulse/simple.h>
+#include <pulse/error.h>
 #include <drumstick/sequencererror.h>
 #include "synthrenderer.h"
 #include "filewrapper.h"
@@ -45,7 +46,7 @@ SynthRenderer::SynthRenderer(int bufTime, QObject *parent) : QObject(parent),
 void
 SynthRenderer::initALSA()
 {
-    const QString errorstr = "Fatal error from the ALSA sequencer. "
+    const char* errorstr = "Fatal error from the ALSA sequencer. "
         "This usually happens when the kernel doesn't have ALSA support, "
         "or the device node (/dev/snd/seq) doesn't exists, "
         "or the kernel module (snd_seq) is not loaded. "
@@ -69,9 +70,9 @@ SynthRenderer::initALSA()
         m_codec = new MidiCodec(256);
         m_codec->enableRunningStatus(false);
     } catch (const SequencerError& ex) {
-        qCritical() << errorstr + "Returned error was:" + ex.qstrError();
+        qFatal("%s Returned error was: %s\n", errorstr, ex.what());
     } catch (...) {
-        qCritical() << errorstr;
+        qFatal("%s\n", errorstr);
     }
     qDebug() << Q_FUNC_INFO;
 }
@@ -86,19 +87,19 @@ SynthRenderer::initEAS()
 
     const S_EAS_LIB_CONFIG *easConfig = EAS_Config();
     if (easConfig == 0) {
-        qCritical() << "EAS_Config returned null";
+        qFatal("EAS_Config returned null\n");
         return;
     }
 
     eas_res = EAS_Init(&dataHandle);
     if (eas_res != EAS_SUCCESS) {
-      qCritical() << "EAS_Init error: " << eas_res;
+      qFatal("EAS_Init error: %ld\n", eas_res);
       return;
     }
 
     eas_res = EAS_OpenMIDIStream(dataHandle, &handle, NULL);
     if (eas_res != EAS_SUCCESS) {
-      qCritical() << "EAS_OpenMIDIStream error: " << eas_res;
+      qFatal("EAS_OpenMIDIStream error: %ld\n", eas_res);
       EAS_Shutdown(dataHandle);
       return;
     }
@@ -138,10 +139,9 @@ SynthRenderer::initPulse()
                     device, "Synthesizer output", &samplespec,
                     NULL, /* pa_channel_map */
                     &bufattr, &err);
-
-    if (!m_pulseHandle)
+    if (err != PA_OK || !m_pulseHandle)
     {
-      qCritical() << "Failed to create PulseAudio connection";
+      qFatal("Failed to create PulseAudio connection. err:%d - %s", err, pa_strerror(err));
     }
     qDebug() << Q_FUNC_INFO << "latency:" << pa_simple_get_latency(m_pulseHandle, &err);
 }
