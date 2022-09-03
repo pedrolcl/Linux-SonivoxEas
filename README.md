@@ -10,25 +10,25 @@ it may be indicated in Linux projects for small embedded devices.
 A multiplatform alternative fork of this project can be found here: [multiplatform-sonivoxeas](https://github.com/pedrolcl/multiplatform-sonivoxeas).
 
 The library uses ALSA Sequencer MIDI input and PulseAudio output. Complete compile-time dependencies are:
-* Qt5, http://www.qt.io/
+* Qt5, http://www.qt.io/ (Qt6 works too, but it is still experimental)
 * Drumstick 2, for ALSA MIDI input. http://sourceforge.net/projects/drumstick/
 * PulseAudio, for audio output. http://www.freedesktop.org/wiki/Software/PulseAudio/
 
 Just to clarify the Drumstick dependency: this project requires Drumstick::ALSA, but Drumstick does not depend on this project at all. There is a Drumstick::RT backend that includes the Sonivox synth as well, but both projects are independent regarding this synthesizer.
 
 The project directory contains:
-* cmdlnsynth: Command line sample program using the synthesizer library
-* guisynth: GUI sample program using the synthesizer library
-* libsvoxeas: The Linux synthesizer shared library, using ALSA Sequencer and PulseAudio
+* cmdlnsynth: Command line sample program using the synthesizer library.
+* guisynth: GUI sample program using the synthesizer library. See the screenshot above.
+* libsvoxeas: The Linux synthesizer shared library, using ALSA Sequencer and PulseAudio.
 * sonivox: The sonivox synth library, forked from the AOSP source files, as a git submodule. It is used as a fallback if the sonivox library external dependency is not found at configuration time.
 
 Hacking
 -------
 
-Remember to use `git clone --recurse-submodules` when cloning the repository to populate the working copy with all the sources, including the submodule's. If you forgot to do that, then you may need to `git submodule update --init --recursive` afterwards.
+Remember to use `git clone --recurse-submodules` when cloning the repository to populate the working copy with all the sources, including the submodule's. If you forgot to do that, then you may need to `git submodule update --init --recursive` afterwards. This is only for people cloning the GitHub repository, because the submodule is not included in the released tarballs.
 
 Use your favorite IDE or text editor with the source files. My preference is QtCreator: https://www.qt.io/ide/
-To build, test and debug you may also find QtCreator interesting. You may also use CMake (>= 3.0) to build the project instead of qmake.
+To build, test and debug you may also find QtCreator interesting. You may also use CMake (>= 3.9) to build the project instead of qmake.
 
 Licenses
 --------

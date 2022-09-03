@@ -20,6 +20,8 @@ get_target_property( SONIVOX_HEADERS sonivox::sonivox INTERFACE_INCLUDE_DIRECTOR
 target_include_directories( guisynth PRIVATE ${SONIVOX_HEADERS} )
 
 target_link_libraries( guisynth
+  Qt${QT_VERSION_MAJOR}::Core
+  Qt${QT_VERSION_MAJOR}::Gui
   Qt${QT_VERSION_MAJOR}::Widgets
   Drumstick::ALSA
   svoxeas

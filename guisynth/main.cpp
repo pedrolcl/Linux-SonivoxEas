@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("LinuxEASSynth");
     QApplication::setApplicationName("GUISynth");
     QApplication::setApplicationVersion(TOSTRING(VERSION));
+    QApplication::setDesktopFileName("sonivoxeas");
     QCommandLineParser parser;
     parser.setApplicationDescription("GUI MIDI Synthesizer and Player");
     parser.addVersionOption();
