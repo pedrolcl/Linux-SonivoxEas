@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2022, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QFileInfo>
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -51,8 +52,10 @@ int main(int argc, char *argv[])
     }
     MainWindow w;
     QStringList args = parser.positionalArguments();
-    if (!args.isEmpty())
-        w.readFile(args.first());
+    if (!args.isEmpty()) {
+        QFileInfo file(args.first());
+        w.readSongFile(file);
+    }
     w.show();
     return app.exec();
 }

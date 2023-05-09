@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2022, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileInfo>
 #include "synthcontroller.h"
 
 enum PlayerState {
@@ -42,7 +43,8 @@ public:
     ~MainWindow();
     void updateState(PlayerState newState);
     void initialize();
-    void readFile(const QString &file);
+    void readSongFile(const QFileInfo &file);
+    void readSoundfont(const QFileInfo &file);
 
 protected:
     virtual void showEvent(QShowEvent *ev);
@@ -63,6 +65,7 @@ private:
     Ui::MainWindow *ui;
     SynthController *m_synth;
     QString m_songFile;
+    QString m_dlsFile;
     PlayerState m_state;
 };
 

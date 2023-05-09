@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2022, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MIDIIOWRAPPER_H
-#define MIDIIOWRAPPER_H
+#ifndef FILEWRAPPER_H
+#define FILEWRAPPER_H
 
 #include <QString>
 #include <QFile>
@@ -26,18 +26,20 @@
 class FileWrapper
 {
 public:
-    FileWrapper(const QString path);
+    FileWrapper(const QString& path);
     FileWrapper(const char *path);
     ~FileWrapper();
     EAS_FILE_LOCATOR getLocator();
     int readAt(void *buffer, int offset, int size);
     int size();
+    bool ok() const;
 
 private:
-    QFile *m_file;
+    bool m_ok;
     off64_t m_Base;
     int64_t  m_Length;
     EAS_FILE m_easFile;
+    QFile m_file;
 };
 
-#endif // MIDIIOWRAPPER_H
+#endif // FILEWRAPPER_H

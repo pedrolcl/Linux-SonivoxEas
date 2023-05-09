@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2022, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -97,6 +97,18 @@ SynthRenderer::initEAS()
       return;
     }
 
+    if (!m_soundfont.isEmpty()) {
+      FileWrapper dlsFile(m_soundfont);
+      if (dlsFile.ok()) {
+          eas_res = EAS_LoadDLSCollection(dataHandle, nullptr, dlsFile.getLocator());
+          if (eas_res != EAS_SUCCESS) {
+              qWarning() << QString("EAS_LoadDLSCollection(%1) error: %2").arg(m_soundfont).arg(eas_res);
+          }
+      } else {
+          qWarning() << "Failed to open" << m_soundfont;
+      }
+    }
+
     eas_res = EAS_OpenMIDIStream(dataHandle, &handle, NULL);
     if (eas_res != EAS_SUCCESS) {
       qFatal("EAS_OpenMIDIStream error: %ld\n", eas_res);
@@ -146,28 +158,50 @@ SynthRenderer::initPulse()
     qDebug() << Q_FUNC_INFO << "latency:" << pa_simple_get_latency(m_pulseHandle, &err);
 }
 
-SynthRenderer::~SynthRenderer()
+void
+SynthRenderer::uninitEAS()
 {
-    m_Port->detach();
-    delete m_Port;
-    m_Client->close();
-    delete m_Client;
-    delete m_codec;
-
     EAS_RESULT eas_res;
     if (m_easData != 0 && m_streamHandle != 0) {
       eas_res = EAS_CloseMIDIStream(m_easData, m_streamHandle);
       if (eas_res != EAS_SUCCESS) {
           qWarning() << "EAS_CloseMIDIStream error: " << eas_res;
       }
+      m_streamHandle = 0;
       eas_res = EAS_Shutdown(m_easData);
       if (eas_res != EAS_SUCCESS) {
           qWarning() << "EAS_Shutdown error: " << eas_res;
       }
+      m_easData = 0;
     }
+}
 
+void SynthRenderer::uninitALSA()
+{
+    if (m_Port != nullptr) {
+        m_Port->detach();
+        delete m_Port;
+        m_Port = nullptr;
+    }
+    if (m_Client != nullptr) {
+        m_Client->close();
+        delete m_Client;
+        delete m_codec;
+        m_Client = nullptr;
+        m_codec = nullptr;
+    }
+}
+
+void SynthRenderer::uninitPulse()
+{
     pa_simple_free(m_pulseHandle);
+}
 
+SynthRenderer::~SynthRenderer()
+{
+    uninitALSA();
+    uninitEAS();
+    uninitPulse();
     qDebug() << Q_FUNC_INFO;
 }
 
@@ -360,6 +394,15 @@ SynthRenderer::setChorusLevel(int amount)
     }
 }
 
+void SynthRenderer::initSoundfont(const QString &dlsFile)
+{
+    if (m_soundfont != dlsFile) {
+        m_soundfont = dlsFile;
+        uninitEAS();
+        initEAS();
+    }
+}
+
 void
 SynthRenderer::playFile(const QString fileName)
 {
@@ -403,7 +446,7 @@ SynthRenderer::preparePlayback()
     }
 
     qDebug() << Q_FUNC_INFO;
-    m_fileHandle = handle;
+    m_midiFileHandle = handle;
     m_isPlaying = true;
 }
 
@@ -412,7 +455,7 @@ SynthRenderer::playbackCompleted()
 {
     EAS_RESULT result;
     EAS_STATE state = EAS_STATE_EMPTY;
-    if ((result = EAS_State(m_easData, m_fileHandle, &state)) != EAS_SUCCESS)
+    if ((result = EAS_State(m_easData, m_midiFileHandle, &state)) != EAS_SUCCESS)
     {
         qWarning() << "EAS_State:" << result;
     }
@@ -427,11 +470,11 @@ SynthRenderer::closePlayback()
     qDebug() << Q_FUNC_INFO;
     EAS_RESULT result = EAS_SUCCESS;
     /* close the input file */
-    if ((result = EAS_CloseFile(m_easData, m_fileHandle)) != EAS_SUCCESS)
+    if ((result = EAS_CloseFile(m_easData, m_midiFileHandle)) != EAS_SUCCESS)
     {
         qWarning() << "EAS_CloseFile" << result;
     }
-    m_fileHandle = 0;
+    m_midiFileHandle = 0;
     delete m_currentFile;
     m_currentFile = 0;
     m_isPlaying = false;
@@ -443,7 +486,7 @@ SynthRenderer::getPlaybackLocation()
     EAS_I32 playTime = 0;
     EAS_RESULT result = EAS_SUCCESS;
     /* get the current time */
-    if ((result = EAS_GetLocation(m_easData, m_fileHandle, &playTime)) != EAS_SUCCESS)
+    if ((result = EAS_GetLocation(m_easData, m_midiFileHandle, &playTime)) != EAS_SUCCESS)
     {
         qWarning() << "EAS_GetLocation" << result;
     }

@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2022, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,45 +21,51 @@
 
 static int
 readAt(void *handle, void *buffer, int pos, int size) {
-    return ((FileWrapper*)handle)->readAt(buffer, pos, size);
+    return static_cast<FileWrapper*>(handle)->readAt(buffer, pos, size);
 }
 
 static int
 size(void *handle) {
-    return ((FileWrapper*)handle)->size();
+    return static_cast<FileWrapper*>(handle)->size();
 }
 
-FileWrapper::FileWrapper(const QString path)
+FileWrapper::FileWrapper(const QString &path)
+    : m_ok{false}
+    , m_Base{0}
+    , m_Length{0}
+    , m_easFile{}
 {
-    //qDebug() << Q_FUNC_INFO << path;
-    m_file = new QFile(path);
-    m_file->open(QIODevice::ReadOnly);
-    m_Base = 0;
-    m_Length = m_file->size();
+    qDebug() << Q_FUNC_INFO << path;
+    m_file.setFileName(path);
+    m_ok = m_file.open(QIODevice::ReadOnly);
+    if (m_ok) {
+        //qDebug("FileWrapper. opened %s", path);
+        m_Length = m_file.size();
+        m_easFile.handle = this;
+        m_easFile.readAt = ::readAt;
+        m_easFile.size = ::size;
+    }
 }
 
 FileWrapper::FileWrapper(const char *path)
+    : FileWrapper(QString::fromLocal8Bit(path))
 {
-    //qDebug("FileWrapper(path=%s)", path);
-    m_file = new QFile(path);
-    m_file->open(QIODevice::ReadOnly);
-    m_Base = 0;
-    m_Length = m_file->size();
+    qDebug("FileWrapper(path=%s)", path);
 }
 
 FileWrapper::~FileWrapper() {
     //qDebug("~FileWrapper");
-    m_file->close();
+    m_file.close();
 }
 
 int
 FileWrapper::readAt(void *buffer, int offset, int size) {
     //qDebug("readAt(%p, %d, %d)", buffer, offset, size);
-    m_file->seek(offset);
+    m_file.seek(offset);
     if (offset + size > m_Length) {
         size = m_Length - offset;
     }
-    return m_file->read((char *)buffer, size);
+    return m_file.read((char *)buffer, size);
 }
 
 int
@@ -68,10 +74,12 @@ FileWrapper::size() {
     return m_Length;
 }
 
+bool FileWrapper::ok() const
+{
+    return m_ok;
+}
+
 EAS_FILE_LOCATOR
 FileWrapper::getLocator() {
-    m_easFile.handle = this;
-    m_easFile.readAt = ::readAt;
-    m_easFile.size = ::size;
     return &m_easFile;
 }

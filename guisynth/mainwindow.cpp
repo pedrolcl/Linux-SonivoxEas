@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2022, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -129,27 +129,40 @@ MainWindow::chorusChanged(int value)
 }
 
 void
-MainWindow::readFile(const QString &file)
+MainWindow::readSongFile(const QFileInfo &file)
 {
-    if (!file.isEmpty() && file != m_songFile) {
-        QFileInfo f(file);
-        m_songFile = f.absoluteFilePath();
-        ui->lblSong->setText(f.fileName());
+    if (file.exists() && file.isReadable()) {
+        m_songFile = file.absoluteFilePath();
+        ui->lblSong->setText(file.fileName());
         updateState(StoppedState);
+    }
+}
+
+void MainWindow::readSoundfont(const QFileInfo &file)
+{
+    if (file.exists() && file.isReadable()) {
+        m_dlsFile = file.absoluteFilePath();
+        ui->lblDLSFileName->setText(file.fileName());
+        m_synth->renderer()->initSoundfont(m_dlsFile);
     }
 }
 
 void
 MainWindow::openFile()
 {
-    QString songFile = QFileDialog::getOpenFileName(this,
+    QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open MIDI file"),  QDir::homePath(),
-        tr("MIDI Files (*.mid *.midi *.kar)"));
-    if (songFile.isEmpty()) {
+        tr("MIDI Files (*.mid *.midi *.kar)") + ";;" +tr("DLS Files (*.dls)"));
+    if (!fileName.isEmpty()) {
+        QFileInfo fInfo(fileName);
+        if (fInfo.suffix().toLower() == "dls") {
+            readSoundfont(fInfo);
+        } else {
+            readSongFile(fInfo);
+        }
+    } else {
         ui->lblSong->setText("[empty]");
         updateState(EmptyState);
-    } else {
-        readFile(songFile);
     }
 }
 

@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2022, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,14 +44,20 @@ public:
     void initChorus(int chorus_type);
     void setReverbWet(int amount);
     void setChorusLevel(int amount);
+    void initSoundfont(const QString& dlsFile);
 
     void playFile(const QString fileName);
     void startPlayback(const QString fileName);
     void stopPlayback();
 
+    void uninitALSA();
+
+    void uninitPulse();
+
 private:
     void initALSA();
     void initEAS();
+    void uninitEAS();
     void initPulse();
     void writeMIDIData(drumstick::ALSA::SequencerEvent *ev);
 
@@ -86,8 +92,9 @@ private:
     int m_sampleRate, m_bufferSize, m_channels;
     EAS_DATA_HANDLE m_easData;
     EAS_HANDLE m_streamHandle;
-    EAS_HANDLE m_fileHandle;
+    EAS_HANDLE m_midiFileHandle;
     FileWrapper *m_currentFile;
+    QString m_soundfont;
 
     /* pulseaudio */
     int m_bufferTime;
