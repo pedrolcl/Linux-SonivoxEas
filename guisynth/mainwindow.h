@@ -57,7 +57,8 @@ private slots:
     void chorusChanged(int value);
     void songStopped();
 
-    void openFile();
+    void openMIDIFile();
+    void openDLSFile();
     void playSong();
     void stopSong();
 

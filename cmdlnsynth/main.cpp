@@ -53,14 +53,16 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.addHelpOption();
     QCommandLineOption bufferOption(QStringList() << "b" << "buffer","Audio buffer time in milliseconds.", "buffer_time", "60");
+    QCommandLineOption dlsOption(QStringList() << "d" << "dls", "DLS Soundfont.", "file.dls", "");
     QCommandLineOption reverbOption(QStringList() << "r" << "reverb", "Reverb type (none=-1,presets=0,1,2,3).", "reverb_type", "1");
     QCommandLineOption wetOption(QStringList() << "w" << "wet", "Reverb wet (0..32765).", "reverb_wet", "25800");
     QCommandLineOption chorusOption(QStringList() << "c" << "chorus", "Chorus type (none=-1,presets=0,1,2,3).", "chorus_type", "-1");
     QCommandLineOption levelOption(QStringList() << "l" << "level", "Chorus level (0..32765).", "chorus_level", "0");
     parser.addOption(bufferOption);
+    parser.addOption(dlsOption);
     parser.addOption(reverbOption);
-    parser.addOption(chorusOption);
     parser.addOption(wetOption);
+    parser.addOption(chorusOption);
     parser.addOption(levelOption);
     parser.addPositionalArgument("files", "MIDI Files (.mid;.kar)", "[files ...]");
     parser.process(app);
@@ -73,6 +75,9 @@ int main(int argc, char *argv[])
             fputs("Wrong buffer time.\n", stderr);
             parser.showHelp(1);
         }
+    }
+    if (parser.isSet(dlsOption)) {
+        ProgramSettings::instance()->setDLSsoundfont(parser.value(dlsOption));
     }
     if (parser.isSet(wetOption)) {
         int n = parser.value(wetOption).toInt();
@@ -115,6 +120,7 @@ int main(int argc, char *argv[])
     synth->renderer()->initReverb(ProgramSettings::instance()->reverbType());
     synth->renderer()->setChorusLevel(ProgramSettings::instance()->chorusLevel());
     synth->renderer()->initChorus(ProgramSettings::instance()->chorusType());
+    synth->renderer()->initSoundfont(ProgramSettings::instance()->dlsSoundfont());
     QObject::connect(&app, &QCoreApplication::aboutToQuit, synth, &QObject::deleteLater);
     QObject::connect(&app, &QCoreApplication::aboutToQuit, ProgramSettings::instance(), &ProgramSettings::SaveToNativeStorage);
     QObject::connect(synth->renderer(), &SynthRenderer::playbackStopped, &app, &QCoreApplication::quit);

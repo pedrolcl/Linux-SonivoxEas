@@ -48,7 +48,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->combo_Chorus, SIGNAL(currentIndexChanged(int)), SLOT(chorusTypeChanged(int)));
     connect(ui->dial_Reverb, &QDial::valueChanged, this, &MainWindow::reverbChanged);
     connect(ui->dial_Chorus, &QDial::valueChanged, this, &MainWindow::chorusChanged);
-    connect(ui->openButton, &QToolButton::clicked, this, &MainWindow::openFile);
+    connect(ui->openMIDIbtn, &QToolButton::clicked, this, &MainWindow::openMIDIFile);
+    connect(ui->openDLSbtn, &QToolButton::clicked, this, &MainWindow::openDLSFile);
     connect(ui->playButton, &QToolButton::clicked, this, &MainWindow::playSong);
     connect(ui->stopButton, &QToolButton::clicked, this, &MainWindow::stopSong);
     connect(m_synth->renderer(), &SynthRenderer::playbackStopped, this, &MainWindow::songStopped);
@@ -67,6 +68,15 @@ MainWindow::initialize()
 {
     int bufTime = ProgramSettings::instance()->bufferTime();
     ui->bufTime->setText(QString("%1 ms").arg(bufTime));
+    QFileInfo dlsInfo(ProgramSettings::instance()->dlsSoundfont());
+    if (dlsInfo.exists() && dlsInfo.isReadable()) {
+        readSoundfont(dlsInfo);
+    } else {
+        ui->lblDLSFileName->setText("[empty]");
+        m_dlsFile.clear();
+        ProgramSettings::instance()->setDLSsoundfont(m_dlsFile);
+        m_synth->renderer()->initSoundfont(m_dlsFile);
+    }
     int reverb = ui->combo_Reverb->findData(ProgramSettings::instance()->reverbType());
     ui->combo_Reverb->setCurrentIndex(reverb);
     ui->dial_Reverb->setValue(ProgramSettings::instance()->reverbWet()); //0..32765
@@ -144,25 +154,39 @@ void MainWindow::readSoundfont(const QFileInfo &file)
         m_dlsFile = file.absoluteFilePath();
         ui->lblDLSFileName->setText(file.fileName());
         m_synth->renderer()->initSoundfont(m_dlsFile);
+        ProgramSettings::instance()->setDLSsoundfont(m_dlsFile);
     }
 }
 
 void
-MainWindow::openFile()
+MainWindow::openMIDIFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open MIDI file"),  QDir::homePath(),
-        tr("MIDI Files (*.mid *.midi *.kar)") + ";;" +tr("DLS Files (*.dls)"));
-    if (!fileName.isEmpty()) {
-        QFileInfo fInfo(fileName);
-        if (fInfo.suffix().toLower() == "dls") {
-            readSoundfont(fInfo);
-        } else {
-            readSongFile(fInfo);
-        }
-    } else {
+        tr("Open MIDI file"), QDir::homePath(),
+        tr("MIDI Files (*.mid *.midi *.kar)"));
+    if (fileName.isEmpty()) {
         ui->lblSong->setText("[empty]");
         updateState(EmptyState);
+    } else {
+        QFileInfo fInfo(fileName);
+        readSongFile(fInfo);
+    }
+}
+
+void
+MainWindow::openDLSFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Open DLS file"), QDir::homePath(),
+        tr("DLS Files (*.dls)"));
+    if (fileName.isEmpty()) {
+        m_dlsFile.clear();
+        ui->lblDLSFileName->setText("[empty]");
+        ProgramSettings::instance()->setDLSsoundfont(m_dlsFile);
+        m_synth->renderer()->initSoundfont(m_dlsFile);
+    } else {
+        QFileInfo fInfo(fileName);
+        readSoundfont(fInfo);
     }
 }
 
@@ -201,18 +225,21 @@ MainWindow::updateState(PlayerState newState)
         case EmptyState:
             ui->playButton->setEnabled(false);
             ui->stopButton->setEnabled(false);
-            ui->openButton->setEnabled(true);
+            ui->openMIDIbtn->setEnabled(true);
+            ui->openDLSbtn->setEnabled(true);
             break;
         case PlayingState:
             ui->playButton->setEnabled(false);
             ui->stopButton->setEnabled(true);
-            ui->openButton->setEnabled(false);
+            ui->openMIDIbtn->setEnabled(false);
+            ui->openDLSbtn->setEnabled(false);
             break;
         case StoppedState:
             ui->stopButton->setEnabled(true);
             ui->playButton->setEnabled(true);
             ui->playButton->setChecked(false);
-            ui->openButton->setEnabled(true);
+            ui->openMIDIbtn->setEnabled(true);
+            ui->openDLSbtn->setEnabled(true);
             break;
         default:
             break;

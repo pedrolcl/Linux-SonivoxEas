@@ -36,6 +36,7 @@ void ProgramSettings::ResetDefaults()
     m_reverbWet = 25800;
     m_chorusType = -1;
     m_chorusLevel = 0;
+    m_DLSsoundfont.clear();
     emit ValuesChanged();
 }
 
@@ -72,6 +73,7 @@ void ProgramSettings::internalRead(QSettings &settings)
     m_reverbWet = settings.value("ReverbWet", 25800).toInt();
     m_chorusType = settings.value("ChorusType", -1).toInt();
     m_chorusLevel = settings.value("ChorusLevel", 0).toInt();
+    m_DLSsoundfont = settings.value("DLSsoundFont", QString()).toString();
     emit ValuesChanged();
 }
 
@@ -82,7 +84,18 @@ void ProgramSettings::internalSave(QSettings &settings)
     settings.setValue("ReverbWet", m_reverbWet);
     settings.setValue("ChorusType", m_chorusType);
     settings.setValue("ChorusLevel", m_chorusLevel);
+    settings.setValue("DLSsoundFont", m_DLSsoundfont);
     settings.sync();
+}
+
+QString ProgramSettings::dlsSoundfont() const
+{
+    return m_DLSsoundfont;
+}
+
+void ProgramSettings::setDLSsoundfont(const QString &newDLSsoundfont)
+{
+    m_DLSsoundfont = newDLSsoundfont;
 }
 
 int ProgramSettings::chorusLevel() const

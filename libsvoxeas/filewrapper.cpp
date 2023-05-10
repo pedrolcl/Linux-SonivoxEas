@@ -35,7 +35,7 @@ FileWrapper::FileWrapper(const QString &path)
     , m_Length{0}
     , m_easFile{}
 {
-    qDebug() << Q_FUNC_INFO << path;
+    //qDebug() << Q_FUNC_INFO << path;
     m_file.setFileName(path);
     m_ok = m_file.open(QIODevice::ReadOnly);
     if (m_ok) {
@@ -50,7 +50,7 @@ FileWrapper::FileWrapper(const QString &path)
 FileWrapper::FileWrapper(const char *path)
     : FileWrapper(QString::fromLocal8Bit(path))
 {
-    qDebug("FileWrapper(path=%s)", path);
+    //qDebug("FileWrapper(path=%s)", path);
 }
 
 FileWrapper::~FileWrapper() {

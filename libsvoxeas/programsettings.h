@@ -45,6 +45,9 @@ public:
     int chorusLevel() const;
     void setChorusLevel(int chorusLevel);
 
+    QString dlsSoundfont() const;
+    void setDLSsoundfont(const QString &newDLSsoundfont);
+
 signals:
     void ValuesChanged();
 
@@ -65,6 +68,7 @@ private:
     int m_reverbWet;
     int m_chorusType;
     int m_chorusLevel;
+    QString m_DLSsoundfont;
 };
 
 #endif // PROGRAMSETTINGS_H
