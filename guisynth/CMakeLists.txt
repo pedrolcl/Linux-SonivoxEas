@@ -32,12 +32,16 @@ target_compile_definitions( guisynth PRIVATE
     $<$<CONFIG:RELEASE>:QT_NO_DEBUG_OUTPUT>
 )
 
-install( TARGETS guisynth 
+install( TARGETS guisynth
          DESTINATION ${CMAKE_INSTALL_BINDIR} )
 
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon.png
          DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps
          RENAME sonivoxeas.png )
+
+install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon.svg
+         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps
+         RENAME sonivoxeas.svg )
 
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon256.png
          DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps
@@ -48,5 +52,5 @@ install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon512.png
          RENAME sonivoxeas.png )
 
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/guisynth.desktop
-         DESTINATION ${CMAKE_INSTALL_DATADIR}/applications 
+         DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
          RENAME sonivoxeas.desktop )

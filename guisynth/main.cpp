@@ -22,15 +22,12 @@
 #include <QCommandLineParser>
 #include <QFileInfo>
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setOrganizationName("LinuxEASSynth");
     QApplication::setApplicationName("GUISynth");
-    QApplication::setApplicationVersion(TOSTRING(VERSION));
+    QApplication::setApplicationVersion(QT_STRINGIFY(VERSION));
     QApplication::setDesktopFileName("sonivoxeas");
     QCommandLineParser parser;
     parser.setApplicationDescription("GUI MIDI Synthesizer and Player");

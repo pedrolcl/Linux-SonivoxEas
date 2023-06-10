@@ -1,16 +1,14 @@
 Sonivox EAS for Linux and Qt
 ============================
 
-This project is a Linux MIDI Synth library based on the Sonivox EAS Synthesizer published by Google on the Android Open Source Project.
-It is a real time GM synthesizer without needing external soundfonts, using embedded samples instead. It consumes very little resources, so
-it may be indicated in Linux projects for small embedded devices.
+This project is a Linux MIDI Synth library based on the Sonivox EAS Synthesizer published by Google on the Android Open Source Project. It is a real time GM synthesizer without needing external soundfonts, using embedded samples instead. It consumes very little resources, so it may be indicated in Linux projects for small embedded devices.
 
 ![Screenshot](screenshot.png)
 
 A multiplatform alternative fork of this project can be found here: [multiplatform-sonivoxeas](https://github.com/pedrolcl/multiplatform-sonivoxeas).
 
 The library uses ALSA Sequencer MIDI input and PulseAudio output. Complete compile-time dependencies are:
-* Qt5, http://www.qt.io/ (Qt6 works too, but it is still experimental)
+* Qt5/Qt6, http://www.qt.io/
 * Drumstick 2, for ALSA MIDI input. http://sourceforge.net/projects/drumstick/
 * PulseAudio, for audio output. http://www.freedesktop.org/wiki/Software/PulseAudio/
 
@@ -57,9 +55,7 @@ https://github.com/pedrolcl/sonivox
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. 
 You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing 
-permissions and limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
 
 The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the 
