@@ -10,6 +10,12 @@
     <height>265</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>273</width>
+    <height>265</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Sonivox EAS Synth</string>
   </property>
