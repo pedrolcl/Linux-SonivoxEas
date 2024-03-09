@@ -3,6 +3,8 @@ Sonivox EAS for Linux and Qt
 
 This project is a Linux MIDI Synth library based on the Sonivox EAS Synthesizer published by Google on the Android Open Source Project. It is a real time GM synthesizer without needing external soundfonts, using embedded samples instead. It consumes very little resources, so it may be indicated in Linux projects for small embedded devices.
 
+[![Build on Linux](https://github.com/pedrolcl/Linux-SonivoxEas/actions/workflows/build-linux.yml/badge.svg)](https://github.com/pedrolcl/Linux-SonivoxEas/actions/workflows/build-linux.yml)
+
 ![Screenshot](screenshot.png)
 
 A multiplatform alternative fork of this project can be found here: [multiplatform-sonivoxeas](https://github.com/pedrolcl/multiplatform-sonivoxeas).
