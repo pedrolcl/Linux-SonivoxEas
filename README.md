@@ -33,7 +33,7 @@ To build, test and debug you may also find QtCreator interesting. You may also u
 Licenses
 --------
 
-Copyright (C) 2016-2023 Pedro López-Cabanillas.
+Copyright (C) 2016-2024 Pedro López-Cabanillas.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

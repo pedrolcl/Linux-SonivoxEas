@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2024, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->combo_Chorus->addItem(QStringLiteral("Preset 4"), 3);
     ui->combo_Chorus->addItem(QStringLiteral("None"), -1);
     ui->combo_Chorus->setCurrentIndex(4);
+
+    ui->libSonivoxVersion->setText(m_synth->renderer()->libVersion());
 
     connect(ui->combo_Reverb, SIGNAL(currentIndexChanged(int)), SLOT(reverbTypeChanged(int)));
     connect(ui->combo_Chorus, SIGNAL(currentIndexChanged(int)), SLOT(chorusTypeChanged(int)));

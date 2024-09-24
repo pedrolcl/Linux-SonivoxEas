@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2024, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,20 +16,23 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QObject>
-#include <QString>
 #include <QCoreApplication>
-#include <QTextStream>
-#include <QtDebug>
+#include <QObject>
 #include <QReadLocker>
+#include <QString>
+#include <QTextStream>
+#include <QVersionNumber>
 #include <QWriteLocker>
-#include "eas_reverb.h"
-#include "eas_chorus.h"
-#include <pulse/simple.h>
-#include <pulse/error.h>
+#include <QtDebug>
+
 #include <drumstick/sequencererror.h>
-#include "synthrenderer.h"
+#include <pulse/error.h>
+#include <pulse/simple.h>
+
+#include "eas_chorus.h"
+#include "eas_reverb.h"
 #include "filewrapper.h"
+#include "synthrenderer.h"
 
 using namespace drumstick::ALSA;
 
@@ -122,7 +125,9 @@ SynthRenderer::initEAS()
     m_sampleRate = easConfig->sampleRate;
     m_bufferSize = easConfig->mixBufferSize;
     m_channels = easConfig->numChannels;
-    qDebug() << Q_FUNC_INFO << "EAS bufferSize=" << m_bufferSize << " sampleRate=" << m_sampleRate << " channels=" << m_channels;
+    m_libVersion = easConfig->libVersion;
+    qDebug() << Q_FUNC_INFO << "Sonivox library:" << libVersion() << "bufferSize:" << m_bufferSize
+             << "sampleRate:" << m_sampleRate << "channels:" << m_channels;
 }
 
 void
@@ -195,6 +200,17 @@ void SynthRenderer::uninitALSA()
 void SynthRenderer::uninitPulse()
 {
     pa_simple_free(m_pulseHandle);
+}
+
+QString SynthRenderer::libVersion() const
+{
+    quint8 v1, v2, v3, v4;
+    v1 = (m_libVersion >> 24) & 0xff;
+    v2 = (m_libVersion >> 16) & 0xff;
+    v3 = (m_libVersion >> 8) & 0xff;
+    v4 = m_libVersion & 0xff;
+    QVersionNumber vn{v1, v2, v3, v4};
+    return vn.toString();
 }
 
 SynthRenderer::~SynthRenderer()
