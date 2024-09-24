@@ -1,6 +1,6 @@
 /*
     Sonivox EAS Synthesizer for Qt applications
-    Copyright (C) 2016-2023, Pedro Lopez-Cabanillas <plcl@users.sf.net>
+    Copyright (C) 2016-2024, Pedro Lopez-Cabanillas <plcl@users.sf.net>
 
     This library is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,8 +51,9 @@ public:
     void stopPlayback();
 
     void uninitALSA();
-
     void uninitPulse();
+
+    QString libVersion() const;
 
 private:
     void initALSA();
@@ -90,6 +91,7 @@ private:
 
     /* SONiVOX EAS */
     int m_sampleRate, m_bufferSize, m_channels;
+    uint m_libVersion;
     EAS_DATA_HANDLE m_easData;
     EAS_HANDLE m_streamHandle;
     EAS_HANDLE m_midiFileHandle;
