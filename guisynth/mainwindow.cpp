@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->combo_Chorus->setCurrentIndex(4);
 
     ui->libSonivoxVersion->setText(m_synth->renderer()->libVersion());
+    setWindowTitle(windowTitle() + " v" + qApp->applicationVersion());
 
     connect(ui->combo_Reverb, SIGNAL(currentIndexChanged(int)), SLOT(reverbTypeChanged(int)));
     connect(ui->combo_Chorus, SIGNAL(currentIndexChanged(int)), SLOT(chorusTypeChanged(int)));
