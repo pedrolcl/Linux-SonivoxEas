@@ -7,6 +7,7 @@ on:
     branches: [ "devel", "master" ]
   pull_request:
     branches: [ "devel", "master" ]
+  workflow_dispatch:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -25,15 +26,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      with: 
+      with:
         submodules: true
 
     - uses: dawidd6/action-download-artifact@v3
       with:
-        name: ${{env.SONIVOXNAME}}
+        name: ${{env.SONIVOXNAME}}-linux
         github_token: ${{secrets.GH_PAT}}
         repo: pedrolcl/sonivox
-        workflow: cmake.yml
+        workflow: cmake-linux.yml
 
     - name: Extract downloaded files
       run: tar xvf ${{env.SONIVOXNAME}}.tar
@@ -51,7 +52,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
-        version: '6.5.*'
+        version: '6.7.*'
 
     - name: Dependencies
       run: sudo apt-get update && sudo apt-get install -yq pkg-config libasound2-dev libpulse-dev
@@ -59,8 +60,8 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build 
-        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
+      run: cmake -B ${{github.workspace}}/build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         -DCMAKE_PREFIX_PATH="${{env.DRUMSTICK_LOCATION}};${{env.SONIVOX_LOCATION}}"
 
     - name: Build
