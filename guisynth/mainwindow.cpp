@@ -17,7 +17,9 @@
 */
 
 #include <QCloseEvent>
+#include <QDebug>
 #include <QFileDialog>
+
 #include "mainwindow.h"
 #include "programsettings.h"
 #include "ui_mainwindow.h"
@@ -48,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->libSonivoxVersion->setText(m_synth->renderer()->libVersion());
     setWindowTitle(windowTitle() + " v" + qApp->applicationVersion());
     ui->qtVersion->setText(qVersion());
+    ui->drumstickVersion->setText(drumstick::ALSA::getDrumstickLibraryVersion());
 
     connect(ui->combo_ALSAConn,
             &QComboBox::currentTextChanged,
@@ -146,6 +149,7 @@ MainWindow::reverbTypeChanged(int index)
 void
 MainWindow::reverbChanged(int value)
 {
+    ui->reverbWet->setNum(value);
     m_synth->renderer()->setReverbWet(value);
     ProgramSettings::instance()->setReverbWet(value);
 }
@@ -169,6 +173,7 @@ MainWindow::chorusTypeChanged(int index)
 void
 MainWindow::chorusChanged(int value)
 {
+    ui->chorusLevel->setNum(value);
     m_synth->renderer()->setChorusLevel(value);
     ProgramSettings::instance()->setChorusLevel(value);
 }

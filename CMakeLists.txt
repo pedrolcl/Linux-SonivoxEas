@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project( EASSynth
-         VERSION 1.5.1
+         VERSION 1.6.0
          DESCRIPTION "Sonivox EAS for Linux and Qt" )
 
 set(CMAKE_CXX_STANDARD 11)
@@ -22,7 +22,7 @@ message(STATUS "Using Drumstick version: ${Drumstick_VERSION}")
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PULSE REQUIRED IMPORTED_TARGET libpulse-simple)
 
-find_package(sonivox 3.6.13 CONFIG)
+find_package(sonivox 3.6.14 CONFIG)
 if (NOT sonivox_FOUND)
     message(FATAL_ERROR "Sonivox library not found")
     #alternative: use sonivox as a git submodule:
