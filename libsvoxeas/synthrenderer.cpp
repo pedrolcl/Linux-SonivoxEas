@@ -250,13 +250,11 @@ SynthRenderer::stop()
 void
 SynthRenderer::subscription(MidiPort*, Subscription* subs)
 {
-    Q_UNUSED(subs)
-
-    qDebug() << Q_FUNC_INFO;
-    // auto *sender = subs->getSender();
-    // if (sender) {
-    //     qDebug() << "Subscription made from " << sender->client << ":" << sender->port;
-    // }
+    auto *sender = subs->getSender();
+    if (sender) {
+        qDebug() << "Subscription made from " << sender->client << ":" << sender->port;
+    }
+    delete subs;
 }
 
 void

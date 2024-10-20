@@ -17,7 +17,7 @@ else()
 endif()
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets REQUIRED)
-find_package(Drumstick 2.9 COMPONENTS ALSA REQUIRED)
+find_package(Drumstick 2.10 COMPONENTS ALSA REQUIRED)
 message(STATUS "Using Drumstick version: ${Drumstick_VERSION}")
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PULSE REQUIRED IMPORTED_TARGET libpulse-simple)
