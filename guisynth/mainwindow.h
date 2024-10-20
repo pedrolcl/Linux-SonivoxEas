@@ -51,6 +51,7 @@ protected:
     virtual void closeEvent(QCloseEvent *ev);
 
 private slots:
+    void alsaConnectionChanged(QString name);
     void reverbTypeChanged(int index);
     void chorusTypeChanged(int index);
     void reverbChanged(int value);
@@ -68,6 +69,7 @@ private:
     QString m_songFile;
     QString m_dlsFile;
     PlayerState m_state;
+    QString m_subscription;
 };
 
 #endif // MAINWINDOW_H

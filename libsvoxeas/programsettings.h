@@ -48,6 +48,9 @@ public:
     QString dlsSoundfont() const;
     void setDLSsoundfont(const QString &newDLSsoundfont);
 
+    QString ALSAConnection() const;
+    void setALSAConnection(const QString &newALSAConnection);
+
 signals:
     void ValuesChanged();
 
@@ -69,6 +72,7 @@ private:
     int m_chorusType;
     int m_chorusLevel;
     QString m_DLSsoundfont;
+    QString m_ALSAConnection;
 };
 
 #endif // PROGRAMSETTINGS_H

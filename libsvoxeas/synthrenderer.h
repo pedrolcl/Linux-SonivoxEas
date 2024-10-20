@@ -37,12 +37,16 @@ public:
     virtual ~SynthRenderer();
 
     void subscribe(const QString& portName);
+    void unsubscribe(const QString &portName);
+
     void stop();
     bool stopped();
 
     void initReverb(int reverb_type);
     void initChorus(int chorus_type);
+    int reverbWet();
     void setReverbWet(int amount);
+    int chorusLevel();
     void setChorusLevel(int amount);
     void initSoundfont(const QString& dlsFile);
 
@@ -54,6 +58,7 @@ public:
     void uninitPulse();
 
     QString libVersion() const;
+    QStringList alsaConnections() const;
 
 private:
     void initALSA();

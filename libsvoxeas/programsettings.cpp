@@ -37,6 +37,7 @@ void ProgramSettings::ResetDefaults()
     m_chorusType = -1;
     m_chorusLevel = 0;
     m_DLSsoundfont.clear();
+    m_ALSAConnection.clear();
     emit ValuesChanged();
 }
 
@@ -74,6 +75,7 @@ void ProgramSettings::internalRead(QSettings &settings)
     m_chorusType = settings.value("ChorusType", -1).toInt();
     m_chorusLevel = settings.value("ChorusLevel", 0).toInt();
     m_DLSsoundfont = settings.value("DLSsoundFont", QString()).toString();
+    m_ALSAConnection = settings.value("ALSAConnection", QString()).toString();
     emit ValuesChanged();
 }
 
@@ -85,7 +87,18 @@ void ProgramSettings::internalSave(QSettings &settings)
     settings.setValue("ChorusType", m_chorusType);
     settings.setValue("ChorusLevel", m_chorusLevel);
     settings.setValue("DLSsoundFont", m_DLSsoundfont);
+    settings.setValue("ALSAConnection", m_ALSAConnection);
     settings.sync();
+}
+
+QString ProgramSettings::ALSAConnection() const
+{
+    return m_ALSAConnection;
+}
+
+void ProgramSettings::setALSAConnection(const QString &newALSAConnection)
+{
+    m_ALSAConnection = newALSAConnection;
 }
 
 QString ProgramSettings::dlsSoundfont() const

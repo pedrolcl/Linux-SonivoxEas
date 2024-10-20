@@ -213,6 +213,17 @@ QString SynthRenderer::libVersion() const
     return vn.toString();
 }
 
+QStringList SynthRenderer::alsaConnections() const
+{
+    QStringList items;
+    QListIterator<PortInfo> it(m_Client->getAvailableInputs());
+    while (it.hasNext()) {
+        PortInfo p = it.next();
+        items << QString("%1:%2").arg(p.getClientName()).arg(p.getPort());
+    }
+    return items;
+}
+
 SynthRenderer::~SynthRenderer()
 {
     uninitALSA();
@@ -239,20 +250,37 @@ SynthRenderer::stop()
 void
 SynthRenderer::subscription(MidiPort*, Subscription* subs)
 {
-    qDebug() << "Subscription made from "
-             << subs->getSender()->client << ":"
-             << subs->getSender()->port;
+    Q_UNUSED(subs)
+
+    qDebug() << Q_FUNC_INFO;
+    // auto *sender = subs->getSender();
+    // if (sender) {
+    //     qDebug() << "Subscription made from " << sender->client << ":" << sender->port;
+    // }
 }
 
 void
 SynthRenderer::subscribe(const QString& portName)
 {
     try {
-        qDebug() << "Trying to subscribe " << portName.toLocal8Bit().data();
+        qDebug() << "Trying to subscribe" << portName.toLocal8Bit().data();
         m_Port->subscribeFrom(portName);
     } catch (const SequencerError& err) {
         qWarning() << "SequencerError exception. Error code: " << err.code()
                    << " (" << err.qstrError() << ")";
+        qWarning() << "Location: " << err.location();
+        throw err;
+    }
+}
+
+void SynthRenderer::unsubscribe(const QString &portName)
+{
+    try {
+        qDebug() << "Trying to unsubscribe" << portName.toLocal8Bit().data();
+        m_Port->unsubscribeFrom(portName);
+    } catch (const SequencerError &err) {
+        qWarning() << "SequencerError exception. Error code: " << err.code() << " ("
+                   << err.qstrError() << ")";
         qWarning() << "Location: " << err.location();
         throw err;
     }
@@ -372,6 +400,7 @@ SynthRenderer::initReverb(int reverb_type)
     if (eas_res != EAS_SUCCESS) {
         qWarning() << "EAS_SetParameter error: " << eas_res;
     }
+    //qDebug() << Q_FUNC_INFO << reverb_type << sw;
 }
 
 void
@@ -390,6 +419,18 @@ SynthRenderer::initChorus(int chorus_type)
     if (eas_res != EAS_SUCCESS) {
         qWarning() << "EAS_SetParameter error:" << eas_res;
     }
+    //qDebug() << Q_FUNC_INFO << chorus_type << sw;
+}
+
+int SynthRenderer::reverbWet()
+{
+    EAS_I32 wet = 0;
+    EAS_RESULT eas_res = EAS_GetParameter(m_easData, EAS_MODULE_REVERB, EAS_PARAM_REVERB_WET, &wet);
+    if (eas_res != EAS_SUCCESS) {
+        qWarning() << "EAS_GetParameter error:" << eas_res;
+    }
+    //qDebug() << Q_FUNC_INFO << wet;
+    return wet;
 }
 
 void
@@ -399,6 +440,21 @@ SynthRenderer::setReverbWet(int amount)
     if (eas_res != EAS_SUCCESS) {
         qWarning() << "EAS_SetParameter error:" << eas_res;
     }
+    //qDebug() << Q_FUNC_INFO << amount;
+}
+
+int SynthRenderer::chorusLevel()
+{
+    EAS_I32 level = 0;
+    EAS_RESULT eas_res = EAS_GetParameter(m_easData,
+                                          EAS_MODULE_CHORUS,
+                                          EAS_PARAM_CHORUS_LEVEL,
+                                          &level);
+    if (eas_res != EAS_SUCCESS) {
+        qWarning() << "EAS_GetParameter error:" << eas_res;
+    }
+    //qDebug() << Q_FUNC_INFO << level;
+    return level;
 }
 
 void
@@ -408,6 +464,7 @@ SynthRenderer::setChorusLevel(int amount)
     if (eas_res != EAS_SUCCESS) {
         qWarning() << "EAS_SetParameter error:" << eas_res;
     }
+    //qDebug() << Q_FUNC_INFO << amount;
 }
 
 void SynthRenderer::initSoundfont(const QString &dlsFile)

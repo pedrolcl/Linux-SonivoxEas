@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_synth = new SynthController(ProgramSettings::instance()->bufferTime(), this);
 
     ui->setupUi(this);
+
     ui->combo_Reverb->addItem(QStringLiteral("Large Hall"), 0);
     ui->combo_Reverb->addItem(QStringLiteral("Hall"), 1);
     ui->combo_Reverb->addItem(QStringLiteral("Chamber"), 2);
@@ -46,9 +47,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->libSonivoxVersion->setText(m_synth->renderer()->libVersion());
     setWindowTitle(windowTitle() + " v" + qApp->applicationVersion());
+    ui->qtVersion->setText(qVersion());
 
-    connect(ui->combo_Reverb, SIGNAL(currentIndexChanged(int)), SLOT(reverbTypeChanged(int)));
-    connect(ui->combo_Chorus, SIGNAL(currentIndexChanged(int)), SLOT(chorusTypeChanged(int)));
+    connect(ui->combo_ALSAConn,
+            &QComboBox::currentTextChanged,
+            this,
+            &MainWindow::alsaConnectionChanged);
+    connect(ui->combo_Reverb, SIGNAL(currentIndexChanged(int)), this, SLOT(reverbTypeChanged(int)));
+    connect(ui->combo_Chorus, SIGNAL(currentIndexChanged(int)), this, SLOT(chorusTypeChanged(int)));
     connect(ui->dial_Reverb, &QDial::valueChanged, this, &MainWindow::reverbChanged);
     connect(ui->dial_Chorus, &QDial::valueChanged, this, &MainWindow::chorusChanged);
     connect(ui->openMIDIbtn, &QToolButton::clicked, this, &MainWindow::openMIDIFile);
@@ -56,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->playButton, &QToolButton::clicked, this, &MainWindow::playSong);
     connect(ui->stopButton, &QToolButton::clicked, this, &MainWindow::stopSong);
     connect(m_synth->renderer(), &SynthRenderer::playbackStopped, this, &MainWindow::songStopped);
+
     m_songFile = QString();
     updateState(EmptyState);
     initialize();
@@ -82,11 +89,17 @@ MainWindow::initialize()
     }
     int reverb = ui->combo_Reverb->findData(ProgramSettings::instance()->reverbType());
     ui->combo_Reverb->setCurrentIndex(reverb);
-    ui->dial_Reverb->setValue(ProgramSettings::instance()->reverbWet()); //0..32765
+    ui->dial_Reverb->setValue(ProgramSettings::instance()->reverbWet()); //0..32767
     int chorus = ui->combo_Chorus->findData(ProgramSettings::instance()->chorusType());
     ui->combo_Chorus->setCurrentIndex(chorus);
     ui->dial_Chorus->setValue(ProgramSettings::instance()->chorusLevel());
     m_synth->start();
+
+    ui->combo_ALSAConn->blockSignals(true);
+    ui->combo_ALSAConn->clear();
+    ui->combo_ALSAConn->addItems(m_synth->renderer()->alsaConnections());
+    ui->combo_ALSAConn->blockSignals(false);
+    ui->combo_ALSAConn->setCurrentText(ProgramSettings::instance()->ALSAConnection());
 }
 
 void
@@ -103,6 +116,17 @@ MainWindow::closeEvent(QCloseEvent* ev)
     ev->accept();
 }
 
+void MainWindow::alsaConnectionChanged(QString name)
+{
+    qDebug() << Q_FUNC_INFO << name;
+    if (!m_subscription.isEmpty()) {
+        m_synth->renderer()->unsubscribe(m_subscription);
+    }
+    m_synth->renderer()->subscribe(name);
+    ProgramSettings::instance()->setALSAConnection(name);
+    m_subscription = name;
+}
+
 void
 MainWindow::reverbTypeChanged(int index)
 {
@@ -112,6 +136,10 @@ MainWindow::reverbTypeChanged(int index)
     if (value < 0) {
         ui->dial_Reverb->setValue(0);
         ProgramSettings::instance()->setReverbWet(0);
+    } else {
+        int wet = m_synth->renderer()->reverbWet();
+        ui->dial_Reverb->setValue(wet);
+        ProgramSettings::instance()->setReverbWet(wet);
     }
 }
 
@@ -131,6 +159,10 @@ MainWindow::chorusTypeChanged(int index)
     if (value < 0) {
         ui->dial_Chorus->setValue(0);
         ProgramSettings::instance()->setChorusLevel(0);
+    } else {
+        int level = m_synth->renderer()->chorusLevel();
+        ui->dial_Chorus->setValue(level);
+        ProgramSettings::instance()->setChorusLevel(level);
     }
 }
 
