@@ -34,6 +34,7 @@ jobs:
         name: ${{env.SONIVOXNAME}}-linux
         github_token: ${{secrets.GH_PAT}}
         repo: pedrolcl/sonivox
+        allow_forks: false
         workflow: cmake-linux.yml
 
     - name: Extract downloaded files
