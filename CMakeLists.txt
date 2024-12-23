@@ -22,7 +22,7 @@ message(STATUS "Using Drumstick version: ${Drumstick_VERSION}")
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PULSE REQUIRED IMPORTED_TARGET libpulse-simple)
 
-find_package(sonivox 3.6.14 CONFIG)
+find_package(sonivox 3.6.15 CONFIG)
 if (NOT sonivox_FOUND)
     message(FATAL_ERROR "Sonivox library not found")
     #alternative: use sonivox as a git submodule:

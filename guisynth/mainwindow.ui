@@ -353,7 +353,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Soundfont:</string>
+         <string>DLS Soundfont:</string>
         </property>
        </widget>
       </item>

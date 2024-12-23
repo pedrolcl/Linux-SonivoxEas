@@ -58,8 +58,11 @@ SynthRenderer::initALSA()
         m_Client = new MidiClient(this);
         m_Client->open();
         m_Client->setClientName("Sonivox EAS");
-        connect( m_Client, &MidiClient::eventReceived,
-                 this, &SynthRenderer::sequencerEvent);
+        connect(m_Client,
+                &MidiClient::eventReceived,
+                this,
+                &SynthRenderer::sequencerEvent,
+                Qt::UniqueConnection);
         m_Port = new MidiPort(this);
         m_Port->attach( m_Client );
         m_Port->setPortName("Synthesizer input");
@@ -67,8 +70,11 @@ SynthRenderer::initALSA()
                                SND_SEQ_PORT_CAP_SUBS_WRITE );
         m_Port->setPortType( SND_SEQ_PORT_TYPE_APPLICATION |
                              SND_SEQ_PORT_TYPE_MIDI_GENERIC );
-        connect( m_Port, &MidiPort::subscribed,
-                 this, &SynthRenderer::subscription);
+        connect(m_Port,
+                &MidiPort::subscribed,
+                this,
+                &SynthRenderer::subscription,
+                Qt::UniqueConnection);
         m_Port->subscribeFromAnnounce();
         m_codec = new MidiCodec(256);
         m_codec->enableRunningStatus(false);
