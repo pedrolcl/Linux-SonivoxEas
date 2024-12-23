@@ -19,6 +19,7 @@
 #include <QCloseEvent>
 #include <QDebug>
 #include <QFileDialog>
+#include <QMimeData>
 
 #include "mainwindow.h"
 #include "programsettings.h"
@@ -285,5 +286,37 @@ MainWindow::updateState(PlayerState newState)
             break;
         }
         m_state = newState;
+    }
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    const QMimeData *mimeData = event->mimeData();
+    if (mimeData->hasUrls()) {
+        event->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    const QMimeData *mimeData = event->mimeData();
+    if (mimeData->hasUrls()) {
+        QString path;
+        const QList<QUrl> urlList = mimeData->urls();
+        if (urlList.count() > 0) {
+            path = urlList.first().toLocalFile();
+        }
+
+        if (!path.isEmpty()) {
+            QFileInfo fInfo(path);
+            if (fInfo.exists()) {
+                const auto ext = fInfo.suffix().toLower();
+                if (ext == "mid" || ext == "midi" || ext == "kar") {
+                    readSongFile(fInfo);
+                } else if (ext == "dls") {
+                    readSoundfont(fInfo);
+                }
+            }
+        }
     }
 }

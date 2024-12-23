@@ -47,8 +47,10 @@ public:
     void readSoundfont(const QFileInfo &file);
 
 protected:
-    virtual void showEvent(QShowEvent *ev);
-    virtual void closeEvent(QCloseEvent *ev);
+    void showEvent(QShowEvent *ev) override;
+    void closeEvent(QCloseEvent *ev) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private slots:
     void alsaConnectionChanged(QString name);
