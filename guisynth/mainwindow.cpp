@@ -314,9 +314,10 @@ void MainWindow::dropEvent(QDropEvent *event)
             QFileInfo fInfo(path);
             if (fInfo.exists()) {
                 const auto ext = fInfo.suffix().toLower();
-                if (ext == "mid" || ext == "midi" || ext == "kar") {
+                if (ext == "mid" || ext == "midi" || ext == "kar" || ext == "rmi" || ext == "xmf"
+                    || ext == "mxmf") {
                     readSongFile(fInfo);
-                } else if (ext == "dls") {
+                } else if (ext == "dls" || ext == "sf2") {
                     readSoundfont(fInfo);
                 }
             }
