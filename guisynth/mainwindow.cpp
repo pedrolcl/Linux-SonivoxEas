@@ -86,7 +86,7 @@ MainWindow::initialize()
     if (dlsInfo.exists() && dlsInfo.isReadable()) {
         readSoundfont(dlsInfo);
     } else {
-        ui->lblDLSFileName->setText("[empty]");
+        ui->lblSFFileName->setText("[empty]");
         m_dlsFile.clear();
         ProgramSettings::instance()->setDLSsoundfont(m_dlsFile);
         m_synth->renderer()->initSoundfont(m_dlsFile);
@@ -193,7 +193,7 @@ void MainWindow::readSoundfont(const QFileInfo &file)
 {
     if (file.exists() && file.isReadable()) {
         m_dlsFile = file.absoluteFilePath();
-        ui->lblDLSFileName->setText(file.fileName());
+        ui->lblSFFileName->setText(file.fileName());
         m_synth->renderer()->initSoundfont(m_dlsFile);
         ProgramSettings::instance()->setDLSsoundfont(m_dlsFile);
     }
@@ -205,7 +205,7 @@ MainWindow::openMIDIFile()
     QString fileName
         = QFileDialog::getOpenFileName(this,
                                        tr("Open MIDI file"),
-                                       QDir::homePath(),
+                                       QString(),
                                        tr("MIDI Files (*.mid *.midi *.kar *.rmi *.xmf *.mxmf)"));
     if (fileName.isEmpty()) {
         ui->lblSong->setText("[empty]");
@@ -221,11 +221,11 @@ MainWindow::openDLSFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     tr("Open SoundFont file"),
-                                                    QDir::homePath(),
+                                                    QString(),
                                                     tr("SoundFont Files (*.dls *.sf2)"));
     if (fileName.isEmpty()) {
         m_dlsFile.clear();
-        ui->lblDLSFileName->setText("[empty]");
+        ui->lblSFFileName->setText("[empty]");
         ProgramSettings::instance()->setDLSsoundfont(m_dlsFile);
         m_synth->renderer()->initSoundfont(m_dlsFile);
     } else {
