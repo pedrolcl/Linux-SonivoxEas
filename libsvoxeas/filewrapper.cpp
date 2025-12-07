@@ -16,62 +16,26 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QDebug>
 #include "filewrapper.h"
-
-static int
-readAt(void *handle, void *buffer, int pos, int size) {
-    return static_cast<FileWrapper*>(handle)->readAt(buffer, pos, size);
-}
-
-static int
-size(void *handle) {
-    return static_cast<FileWrapper*>(handle)->size();
-}
+#include <cstdio>
 
 FileWrapper::FileWrapper(const QString &path)
-    : m_ok{false}
-    , m_Base{0}
-    , m_Length{0}
-    , m_easFile{}
-{
-    //qDebug() << Q_FUNC_INFO << path;
-    m_file.setFileName(path);
-    m_ok = m_file.open(QIODevice::ReadOnly);
-    if (m_ok) {
-        //qDebug("FileWrapper. opened %s", path);
-        m_Length = m_file.size();
-        m_easFile.handle = this;
-        m_easFile.readAt = ::readAt;
-        m_easFile.size = ::size;
-    }
-}
+    : FileWrapper(path.toLocal8Bit().data())
+{}
 
 FileWrapper::FileWrapper(const char *path)
-    : FileWrapper(QString::fromLocal8Bit(path))
+    : m_ok{false}
+    , m_easFile{}
 {
-    //qDebug("FileWrapper(path=%s)", path);
+    memset(&m_easFile, 0, sizeof(EAS_FILE));
+    m_easFile.handle = fopen(path, "rb");
+    m_ok = (m_easFile.handle != 0);
 }
 
 FileWrapper::~FileWrapper() {
-    //qDebug("~FileWrapper");
-    m_file.close();
-}
-
-int
-FileWrapper::readAt(void *buffer, int offset, int size) {
-    //qDebug("readAt(%p, %d, %d)", buffer, offset, size);
-    m_file.seek(offset);
-    if (offset + size > m_Length) {
-        size = m_Length - offset;
+    if (m_easFile.handle != 0) {
+        fclose(reinterpret_cast<FILE *>(m_easFile.handle));
     }
-    return m_file.read((char *)buffer, size);
-}
-
-int
-FileWrapper::size() {
-    //qDebug("size() = %d", int(mLength));
-    return m_Length;
 }
 
 bool FileWrapper::ok() const

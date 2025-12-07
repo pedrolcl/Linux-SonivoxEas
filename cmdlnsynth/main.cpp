@@ -16,13 +16,14 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <signal.h>
-#include <QDebug>
-#include <QCoreApplication>
 #include <QCommandLineParser>
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <signal.h>
+
 #include "eas_reverb.h"
-#include "synthcontroller.h"
 #include "programsettings.h"
+#include "synthcontroller.h"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
     #define endl Qt::endl
@@ -128,7 +129,7 @@ int main(int argc, char *argv[])
     QStringList args = parser.positionalArguments();
     if (!args.isEmpty()) {
         for(int i = 0; i < args.length();  ++i) {
-            QFile argFile(args[i]);
+            QFileInfo argFile(args[i]);
             if (argFile.exists()) {
                 synth->renderer()->playFile(argFile.fileName());
             }

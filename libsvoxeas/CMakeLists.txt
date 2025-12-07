@@ -7,18 +7,19 @@ set( HEADERS
     programsettings.h
     synthcontroller.h
     synthrenderer.h
+    filewrapper.h
 )
 
 set( SOURCES
     programsettings.cpp
-    synthcontroller.cpp 
+    synthcontroller.cpp
     synthrenderer.cpp
     filewrapper.cpp
 )
 
 add_library( svoxeas SHARED ${HEADERS} ${SOURCES} )
 
-set_target_properties( svoxeas PROPERTIES 
+set_target_properties( svoxeas PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
