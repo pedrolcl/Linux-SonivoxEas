@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
         for(int i = 0; i < args.length();  ++i) {
             QFileInfo argFile(args[i]);
             if (argFile.exists()) {
-                synth->renderer()->playFile(argFile.fileName());
+                synth->renderer()->playFile(argFile.absoluteFilePath());
             }
         }
     }
