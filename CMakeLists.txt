@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.21)
 project( EASSynth
          VERSION 1.7.0
          DESCRIPTION "Sonivox EAS for Linux and Qt" )
@@ -22,7 +22,7 @@ message(STATUS "Using Drumstick version: ${Drumstick_VERSION}")
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PULSE REQUIRED IMPORTED_TARGET libpulse-simple)
 
-set(sonivox_SHARED_LIBS ON)
+set(sonivox_SHARED_LIBS ON) # set this OFF to use static sonivox
 find_package(sonivox 4.0 CONFIG REQUIRED)
 if (NOT sonivox_FOUND)
     message(FATAL_ERROR "Sonivox library not found")
