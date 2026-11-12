@@ -1,6 +1,4 @@
-# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
-name: Build on Linux
+name: Linux CI
 
 on:
   push:
@@ -10,8 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: RelWithDebInfo
+  BUILD_TYPE: Release
   DRUMSTICKNAME: DrumstickV2
   SONIVOXNAME: SonivoxV4
   DRUMSTICK_LOCATION: ${{github.workspace}}/DrumstickV2
@@ -19,44 +16,47 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: "x86_64", altarch: "x64", os: "ubuntu-24.04" }
+          - { arch: "aarch64", altarch: "arm64", os: "ubuntu-24.04-arm" }
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: true
 
-    - uses: dawidd6/action-download-artifact@v11
+    - uses: dawidd6/action-download-artifact@v28
       with:
-        name: ${{env.SONIVOXNAME}}-Linux-x64-r44s16
+        name: ${{env.SONIVOXNAME}}-Linux-${{matrix.altarch}}-r44s16
         github_token: ${{secrets.GH_PAT}}
         repo: EmbeddedSynth/sonivox
         allow_forks: false
         workflow: linux-ci.yml
         branch: devel
 
-    - name: Extract downloaded files
+    - name: Extract downloaded Sonivox files
       run: tar xvf ${{env.SONIVOXNAME}}.tar
 
-    - uses: dawidd6/action-download-artifact@v11
+    - uses: dawidd6/action-download-artifact@v28
       with:
-        name: ${{env.DRUMSTICKNAME}}
+        name: ${{env.DRUMSTICKNAME}}-${{matrix.arch}}.tar.gz
         github_token: ${{secrets.GH_PAT}}
         repo: pedrolcl/drumstick
         allow_forks: false
-        workflow: cmake.yml
-        branch: devel
+        workflow: linux.yml
+        skip_unpack: true
 
-    - name: Extract downloaded files
-      run: tar xvf ${{env.DRUMSTICKNAME}}.tar
+    - name: Extract downloaded Drumstick files
+      run: tar xvf ${{env.DRUMSTICKNAME}}-${{matrix.arch}}.tar.gz
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.10.*'
+        version: '6.12.0'
 
     - name: Dependencies
       run: sudo apt-get update && sudo apt-get install -yq pkg-config libasound2-dev libpulse-dev
@@ -69,5 +69,4 @@ jobs:
         -DCMAKE_PREFIX_PATH="${{env.DRUMSTICK_LOCATION}};${{env.SONIVOX_LOCATION}}"
 
     - name: Build
-      # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}

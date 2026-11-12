@@ -144,7 +144,7 @@ SynthRenderer::initPulse()
     int period_bytes = 0;
     char *server = 0;
     char *device = 0;
-    int err;
+    int err = PA_OK;
 
     samplespec.format = PA_SAMPLE_S16LE;
     samplespec.channels = m_channels;
@@ -158,13 +158,17 @@ SynthRenderer::initPulse()
     bufattr.prebuf = (int32_t)-1;
     bufattr.fragsize = (int32_t)-1;
 
-    m_pulseHandle = pa_simple_new (server, "SonivoxEAS", PA_STREAM_PLAYBACK,
-                    device, "Synthesizer output", &samplespec,
-                    NULL, /* pa_channel_map */
-                    &bufattr, &err);
-    if (err != PA_OK || !m_pulseHandle)
-    {
-      qFatal("Failed to create PulseAudio connection. err:%d - %s", err, pa_strerror(err));
+    m_pulseHandle = pa_simple_new(server,
+                                  "SonivoxEAS",
+                                  PA_STREAM_PLAYBACK,
+                                  device,
+                                  "Synthesizer output",
+                                  &samplespec,
+                                  nullptr, /* pa_channel_map */
+                                  &bufattr,
+                                  &err);
+    if (!m_pulseHandle) {
+        qFatal("Failed to create PulseAudio connection. err:%d - %s", err, pa_strerror(err));
     }
     qDebug() << Q_FUNC_INFO << "latency:" << pa_simple_get_latency(m_pulseHandle, &err);
 }
