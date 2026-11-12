@@ -11,7 +11,7 @@ A multiplatform alternative fork of this project can be found here: [multiplatfo
 
 The library uses ALSA Sequencer MIDI input and PulseAudio output. Complete compile-time dependencies are:
 * Qt5/Qt6, http://www.qt.io/
-* Drumstick 2, for ALSA MIDI input. http://sourceforge.net/projects/drumstick/
+* Drumstick 2.11, for ALSA MIDI input. http://sourceforge.net/projects/drumstick/
 * PulseAudio, for audio output. http://www.freedesktop.org/wiki/Software/PulseAudio/
 
 Just to clarify the Drumstick dependency: this project requires Drumstick::ALSA, but Drumstick does not depend on this project at all. There is a Drumstick::RT backend that includes the Sonivox synth as well, but both projects are independent regarding this synthesizer.
@@ -25,15 +25,15 @@ The project directory contains:
 Hacking
 -------
 
-Remember to use `git clone --recurse-submodules` when cloning the repository to populate the working copy with all the sources, including the submodule's. If you forgot to do that, then you may need to `git submodule update --init --recursive` afterwards. This is only for people cloning the GitHub repository, because the submodule is not included in the released tarballs.
+Remember to use `git clone --recurse-submodules` when cloning the repository to populate the working copy with all the sources, including the submodule's. If you forgot to do that, then you may need to `git submodule update --init --recursive` afterwards. This is for people cloning the GitHub repository. The submodule is not included in the released tarballs.
 
-Use your favorite IDE or text editor with the source files. My preference is QtCreator: https://www.qt.io/ide/
+Use your favorite IDE or text editor with the source files. My preference is [QtCreator](https://www.qt.io/development/tools/qt-creator-ide). 
 To build, test and debug you may also find QtCreator interesting. You may also use CMake (>= 3.9) to build the project instead of qmake.
 
 Licenses
 --------
 
-Copyright (C) 2016-2024 Pedro López-Cabanillas.
+Copyright (C) 2016-2026 Pedro López-Cabanillas.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 This project includes code from the Sonivox EAS synthesizer, Copyright Sonic Network Inc. 2006. 
 Sonivox EAS belongs to the Android Open Source Project. It has been forked from the official repositories:
 
-https://github.com/pedrolcl/sonivox
+https://github.com/EmbeddedSynth/sonivox
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. 
 You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0

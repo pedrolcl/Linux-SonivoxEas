@@ -67,6 +67,26 @@ jobs:
       run: cmake -B ${{github.workspace}}/build
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         -DCMAKE_PREFIX_PATH="${{env.DRUMSTICK_LOCATION}};${{env.SONIVOX_LOCATION}}"
+        -DCMAKE_INSTALL_PREFIX=/usr
+        -DCMAKE_INSTALL_LIBDIR=lib
+        -DCMAKE_INSTALL_RPATH="\$ORIGIN/../lib"
+        -DINSTALL_DEPENDENCIES=ON
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      env:
+        DESTDIR: ${{github.workspace}}/build/Linux-SonivoxEas-${{steps.configuration.outputs.config_version}}-${{matrix.arch}}.AppDir
+      run: cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Upload AppImage
+      env:
+        INSTALL_LOCATION: Linux-SonivoxEas-${{steps.configuration.outputs.config_version}}-${{matrix.arch}}.AppImage
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{env.INSTALL_LOCATION}}
+        path: ${{github.workspace}}/build/${{env.INSTALL_LOCATION}}
+        retention-days: 90
+        overwrite: true
+        archive: false
